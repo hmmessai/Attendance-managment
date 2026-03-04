@@ -34,7 +34,7 @@ const Home = (props) => {
         };
 
         fetchStudents();
-    }, [loadingSearch]);
+    }, [loadingSearch, attendanceDate]);
 
     const createAttendance = async () => {
         const token = Cookies.get("token");
@@ -77,8 +77,13 @@ const Home = (props) => {
                 {students.length === 0 ? (
                     <p>No students found in the database.</p>
                 ) : (<div>
-                    <input type="date" value={attendanceDate} onChange={(e) => setAttendanceDate(e.target.value)} className="form-control mb-3"/>
-                    <button className="btn btn-success mb-3 float-end" onClick={(e) => { e.preventDefault(); createAttendance(); }}>Create Attendance</button>
+                    <div className="d-flex align-items-center justify-content-between mb-3">
+                        <input type="date" value={attendanceDate} onChange={(e) => { setAttendanceDate(e.target.value); setLoadingSearch(true); }} className="form-control w-50 mb-3"/>
+                        <div className="ms-auto">
+                            <button className="btn btn-success mb-3 mx-2 float-end" onClick={(e) => { e.preventDefault(); createAttendance(); }}>Create Attendance</button>
+                            <button className="btn btn-warning mb-3 mx-2 float-end" onClick={(e) => { e.preventDefault(); createAttendance(); }}>Update Attendance</button>
+                        </div>
+                    </div>
                     <table className="table table-striped">
                     <thead>
                         <tr>
