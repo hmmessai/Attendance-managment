@@ -12,6 +12,7 @@ const endPoint = {
     NEWSTUDENT: `${BaseUrl}/student/create`,
     POSTATTENDANCE: `${BaseUrl}/attendance/post-bulk`,
     FULLATTENDANCE: `${BaseUrl}/attendance/get-full`,
+    FULLATTENDANCEBYDATE: `${BaseUrl}/attendance/get-full-by-date`,
     DAILYATTENDANCE: `${BaseUrl}/attendance/get-daily`,
     YEARLYATTENDANCE: `${BaseUrl}/attendance/create-yearly`,
     YEARLYATTENDANCEALL: `${BaseUrl}/attendance/create-yearly-all`,

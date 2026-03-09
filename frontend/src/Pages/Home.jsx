@@ -22,7 +22,12 @@ const Home = (props) => {
             if(!loadingSearch) return;
             try {
                 setLoadingSearch(true);
-                const response = await axiosInstance.get(endPoint.STUDENTS);
+                const response = await axiosInstance.get(endPoint.GETFULLATTENDANCEBYDATE, {
+                    params: { date: attendanceDate },
+                    headers: {
+                        "Authorization": `Bearer ${Cookies.get("token")}`
+                    }
+                });
                 console.log(response);
                 setStudents(response.data);
             } catch (err) {
@@ -74,16 +79,16 @@ const Home = (props) => {
             <Header isAuthenticated={isAuthenticated} user={user ? user.name : null} role={user ? user.role: null}></Header>
             <div className="container" style={{margin: '10vh auto auto'}}>
                 <h1>Student Attendance Dashboard</h1>
-                {students.length === 0 ? (
-                    <p>No students found in the database.</p>
-                ) : (<div>
-                    <div className="d-flex align-items-center justify-content-between mb-3">
+                <div className="d-flex align-items-center justify-content-between mb-3">
                         <input type="date" value={attendanceDate} onChange={(e) => { setAttendanceDate(e.target.value); setLoadingSearch(true); }} className="form-control w-50 mb-3"/>
                         <div className="ms-auto">
                             <button className="btn btn-success mb-3 mx-2 float-end" onClick={(e) => { e.preventDefault(); createAttendance(); }}>Create Attendance</button>
                             <button className="btn btn-warning mb-3 mx-2 float-end" onClick={(e) => { e.preventDefault(); createAttendance(); }}>Update Attendance</button>
                         </div>
-                    </div>
+                </div>
+                {students.length === 0 ? (
+                    <p>No students found in the database.</p>
+                ) : (<div>
                     <table className="table table-striped">
                     <thead>
                         <tr>
@@ -95,11 +100,11 @@ const Home = (props) => {
                     </thead>
                     <tbody>
                     {students.map((student, index) => (
-                        <tr key={student._id || student.id}>
+                        <tr key={student.student._id || student.id}>
                             <td>{index + 1}</td>
-                            <td>{student.name || "Unknown Name"}</td>
-                            <td>{student.section || "Unknown Section"}</td>
-                            <td>{student.attendance && student.attendance.length > 0 && student.attendance[0].day === attendanceDate ? (student.attendance[0].status) : ("No attendance data")}</td>
+                            <td>{student.student.name || "Unknown Name"}</td>
+                            <td>{student.student.section || "Unknown Section"}</td>
+                            <td>{student.status ? student.status : "No attendance data"}</td>
                         </tr>
                     ))}
                     </tbody>

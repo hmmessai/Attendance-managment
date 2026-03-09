@@ -23,6 +23,39 @@ async function getFullStudentAttendance(req, res) {
     }
 }
 
+async function getFullStudentsAttendanceonSpecificDate(req, res) {
+    try {
+        const { date } = req.body;
+        const students = Student.find();
+        const studentAttendance = await Attendance
+                .find({date: date })
+                .populate("student", "name _id section");
+
+        for (student in students) {
+            if (student._id == studentAttendance.student._id) {
+                continue;
+            } else {
+                studentAttendance.push({
+                    student: {
+                        name: student.name,
+                        _id: student._id,
+                        section: student.section
+                    },
+                    day: date,
+                    status: null
+                });
+            }
+        }
+        if (!studentAttendance.length) {
+            return res.status(404).json({ message: "No attendance records found" });
+        }
+        
+        res.status(200).json(attendance);
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching attendance", error: error.message });
+    }
+}
+
 // Create attendance for the whole year
 async function createYearlyAttendance(req, res) {
     try {
@@ -232,6 +265,7 @@ const clearAllRecords = async (req, res) => {
 
 module.exports = {
     getFullStudentAttendance,
+    getFullStudentsAttendanceonSpecificDate,
     getDailyStudentAttendance,
     createYearlyAttendance,
     updateAttendanceStatus,

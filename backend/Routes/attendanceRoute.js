@@ -2,7 +2,8 @@ const router = require("express").Router();
 const { 
     createYearlyAttendance, 
     updateAttendanceStatus, 
-    getFullStudentAttendance, 
+    getFullStudentAttendance,
+    getFullStudentsAttendanceonSpecificDate,
     getDailyStudentAttendance,
     clearAllRecords,
     createYearlyAttendanceAll,
@@ -11,6 +12,7 @@ const {
 const {protect } = require("../Controllers/authController");
 
 router.get("/get-full", protect, getFullStudentAttendance);
+router.get("/get-full-by-date", protect, getFullStudentsAttendanceonSpecificDate);
 router.get("/get-daily", protect, getDailyStudentAttendance);
 router.post("/create-yearly", protect, createYearlyAttendance);
 router.put("/update-status", protect, updateAttendanceStatus);
