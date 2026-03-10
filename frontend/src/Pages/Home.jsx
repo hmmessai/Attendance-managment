@@ -12,34 +12,70 @@ const Home = (props) => {
     const [attendanceDate, setAttendanceDate] = useState(getTodayDate());
     const { state } = useContext(AuthContext);
     const { user, isAuthenticated } = state;
-    const [students, setStudents] = useState([]);
+    const [attendances, setAttendances] = useState([]);
     const [error, setError] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [loadingSearch, setLoadingSearch] = useState(true);
 
     useEffect(() => {
         const fetchStudents = async () => {
-            if(!loadingSearch) return;
             try {
-                setLoadingSearch(true);
-                const response = await axiosInstance.get(endPoint.GETFULLATTENDANCEBYDATE, {
-                    params: { date: attendanceDate },
-                    headers: {
-                        "Authorization": `Bearer ${Cookies.get("token")}`
+                if (!loading) {
+                    setLoadingSearch(true);
+                }
+                
+                console.log(attendanceDate);
+                const response = await axiosInstance.post(endPoint.FULLATTENDANCEBYDATE,
+                    { "date": attendanceDate },
+                    {
+                        headers: {
+                            "Authorization": `Bearer ${Cookies.get("token")}`,
+                            "Content-Type": "application/json"
+                        }
                     }
-                });
+                );
                 console.log(response);
-                setStudents(response.data);
+                setAttendances(response.data);
             } catch (err) {
-                console.log("Error fetching students:", err);
-                setError(err.message);
+                console.log("Error fetching attendances:", err);
+                if (err.response && err.response.status === 404) {
+                    setAttendances([]);
+                } else {
+                    setError("Error fetching attendances");
+                }
             } finally {
                 setLoadingSearch(false);
             }
         };
 
         fetchStudents();
-    }, [loadingSearch, attendanceDate]);
+    }, [loading,  attendanceDate]);
+
+    const handleStatusChange = async (attendanceId, status) => {
+        const token = Cookies.get("token");
+        try {
+            const response = await axiosInstance.put(
+                endPoint.UPDATEATTENDANCE,
+                {
+                    attendanceId: attendanceId,
+                    status: status
+                },
+                {
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    }
+                }
+            );
+            console.log(response);
+        } catch (err) {
+            console.log("Error updating attendance:", err);
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
 
     const createAttendance = async () => {
         const token = Cookies.get("token");
@@ -47,13 +83,9 @@ const Home = (props) => {
         try {
             setLoadingSearch(true);
             const response = await axiosInstance.post(
-                endPoint.POSTATTENDANCE, 
+                endPoint.CREATEDAILYFORALL, 
                 {
-                    day: attendanceDate,
-                    data: students.map(student => ({
-                        studentId: student.id,
-                        status: null
-                    }))
+                    "date": attendanceDate,
                 },
                 {
                     headers: {
@@ -71,7 +103,7 @@ const Home = (props) => {
     };
 
     if (loadingSearch) {
-        return <Loading></Loading>
+        return <Loading message="Loading page..."></Loading>
     }
 
     return (
@@ -85,33 +117,72 @@ const Home = (props) => {
                             <button className="btn btn-success mb-3 mx-2 float-end" onClick={(e) => { e.preventDefault(); createAttendance(); }}>Create Attendance</button>
                             <button className="btn btn-warning mb-3 mx-2 float-end" onClick={(e) => { e.preventDefault(); createAttendance(); }}>Update Attendance</button>
                         </div>
+                </div> 
+                <div className="position-relative">
+
+            {loading && (
+                <div className="loading-overlay">
+                <div className="spinner-border text-light"></div>
                 </div>
-                {students.length === 0 ? (
-                    <p>No students found in the database.</p>
-                ) : (<div>
-                    <table className="table table-striped">
+            )}
+
+            {attendances.length === 0 ? (
+                <p>No attendance records found.</p>
+            ) : (
+                <div>
+                <table className="table table-striped">
                     <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Name</th>
-                            <th>Section</th>
-                            <th>Day</th>
-                        </tr>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Section</th>
+                        <th>Day</th>
+                        <th>Status</th>
+                        <th>Change</th>
+                    </tr>
                     </thead>
+
                     <tbody>
-                    {students.map((student, index) => (
-                        <tr key={student.student._id || student.id}>
-                            <td>{index + 1}</td>
-                            <td>{student.student.name || "Unknown Name"}</td>
-                            <td>{student.student.section || "Unknown Section"}</td>
-                            <td>{student.status ? student.status : "No attendance data"}</td>
+                    {attendances.map((attendance, index) => (
+                        <tr key={attendance._id || attendance.id}>
+                        <td>{index + 1}</td>
+                        <td>{attendance.student.name || "Unknown Name"}</td>
+                        <td>{attendance.student.section || "Unknown Section"}</td>
+                        <td>{attendance.day || "Unknown Day"}</td>
+                        <td>{attendance.status ? attendance.status : "Not Set"}</td>
+                        <td>
+                            <button
+                            className="btn btn-success p-1 mx-1"
+                            onClick={() => {setLoading(true); handleStatusChange(attendance._id, "Present");}}>
+                            ✓
+                            </button>
+
+                            <button className="btn btn-danger p-1 mx-1" onClick={() => {setLoading(true); handleStatusChange(attendance._id, "Absent");}}>                         A
+                            </button>
+
+                            <button
+                            className="btn btn-warning p-1 mx-1"
+                            onClick={() => {setLoading(true); handleStatusChange(attendance._id, "Late-30mins");}}
+                            >
+                            L
+                            </button>
+
+                            <button
+                            className="btn btn-primary p-1 mx-1"
+                            onClick={() => {setLoading(true); handleStatusChange(attendance._id, "Permission");}}
+                            >
+                            P
+                            </button>
+                        </td>
                         </tr>
                     ))}
                     </tbody>
 
-                    </table>
-                    </div>
-                )}
+                </table>
+                </div>
+            )}
+
+            </div>
             </div>
         </div>
     );

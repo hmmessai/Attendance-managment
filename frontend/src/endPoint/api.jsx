@@ -1,6 +1,5 @@
 import axios from "axios";
 
-// const BaseUrl = "https://book-catalog-i0r4.onrender.com/api";
 const BaseUrl =  "https://supreme-journey-6x6qr77v76xf4wj9-5000.app.github.dev/api";
 
 const endPoint = {
@@ -11,6 +10,7 @@ const endPoint = {
     GETSTUDENT: `${BaseUrl}/student/get`,
     NEWSTUDENT: `${BaseUrl}/student/create`,
     POSTATTENDANCE: `${BaseUrl}/attendance/post-bulk`,
+    CREATEDAILYFORALL: `${BaseUrl}/attendance/daily-all`,
     FULLATTENDANCE: `${BaseUrl}/attendance/get-full`,
     FULLATTENDANCEBYDATE: `${BaseUrl}/attendance/get-full-by-date`,
     DAILYATTENDANCE: `${BaseUrl}/attendance/get-daily`,
