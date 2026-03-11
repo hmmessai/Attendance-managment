@@ -1,4 +1,6 @@
 import React, { useContext, useState, useEffect } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import '../App.css';
 import { AuthContext } from "../Components/Auth/AuthContext";
 import Header from "../Components/Other/Header";
@@ -7,18 +9,20 @@ import Loading from "../Components/Other/Loading";
 import Cookies from "js-cookie";
 
 const Home = (props) => {
-    const getTodayDate = () => new Date("2026-02-19").toISOString().split('T')[0];
+    const getTodayDate = () => new Date().toISOString().split('T')[0];
 
     const [attendanceDate, setAttendanceDate] = useState(getTodayDate());
     const { state } = useContext(AuthContext);
     const { user, isAuthenticated } = state;
     const [attendances, setAttendances] = useState([]);
-    const [error, setError] = useState(null);
+    const [message, setMessage] = useState({});
     const [loading, setLoading] = useState(false);
     const [loadingSearch, setLoadingSearch] = useState(true);
 
     useEffect(() => {
+        
         const fetchStudents = async () => {
+            // setMessage(null);
             try {
                 if (!loading) {
                     setLoadingSearch(true);
@@ -36,12 +40,16 @@ const Home = (props) => {
                 );
                 console.log(response);
                 setAttendances(response.data);
+                toast.warning("Attendance records loaded for " + attendanceDate);
             } catch (err) {
                 console.log("Error fetching attendances:", err);
                 if (err.response && err.response.status === 404) {
                     setAttendances([]);
+                    toast.warning("No attendance records found for this date");
+                } else if (err.response && err.response.status === 401) {
+                    toast.error("Unauthorized. Please log in again.");
                 } else {
-                    setError("Error fetching attendances");
+                    toast.error("Error fetching attendances");
                 }
             } finally {
                 setLoadingSearch(false);
@@ -68,9 +76,16 @@ const Home = (props) => {
                 }
             );
             console.log(response);
+            toast.success("Attendance updated successfully");
         } catch (err) {
             console.log("Error updating attendance:", err);
-            setError(err.message);
+            if (err.status === 400) {
+                toast.warning("Invalid attendance ID or status");
+            } else if (err.status === 401) {
+                toast.error("Unauthorized. Please log in again.");
+            } else {
+                toast.error(err.message);
+            }
         } finally {
             setLoading(false);
         }
@@ -96,7 +111,13 @@ const Home = (props) => {
             console.log(response);
         } catch (err) {
             console.log("Error creating attendance:", err);
-            setError(err.message);
+            if (err.status === 400) {
+                toast.warning("Attendance for this date already exists");
+            } else if (err.status === 401) {
+                toast.error("Unauthorized. Please log in again.");
+            } else {
+                toast.error(err.message);
+            }
         } finally {
             setLoadingSearch(false);
         }
@@ -111,6 +132,12 @@ const Home = (props) => {
             <Header isAuthenticated={isAuthenticated} user={user ? user.name : null} role={user ? user.role: null}></Header>
             <div className="container" style={{margin: '10vh auto auto'}}>
                 <h1>Student Attendance Dashboard</h1>
+                {/* {message &&
+                    <div className={`alert alert-${message.type} text-center w-50 mx-auto`} role="alert">
+                    {message.message}
+                    </div>
+                } */}
+                <ToastContainer position="top-right" autoClose={3000} hideProgressBar={true} closeOnClick={true} pauseOnHover={true} draggable={true} theme="colored" />
                 <div className="d-flex align-items-center justify-content-between mb-3">
                         <input type="date" value={attendanceDate} onChange={(e) => { setAttendanceDate(e.target.value); setLoadingSearch(true); }} className="form-control w-50 mb-3"/>
                         <div className="ms-auto">
