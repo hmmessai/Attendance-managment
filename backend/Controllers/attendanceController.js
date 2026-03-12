@@ -113,6 +113,9 @@ async function lockAttendance(req, res) {
     try {
         const { date } = req.body;
         const result = await Attendance.updateMany({ day: date }, { $set: { locked: true } });
+        for (const updated of result) {
+            telegram_service.sendMessage(process.env.TG_CHAT_ID, `Student ${updated.student} on ${updated.day} is now locked`);
+        }
         res.status(200).json({ message: "Attendance locked for the day", modifiedCount: result.nModified });
     } catch (error) {
         res.status(500).json({ message: "Error locking attendance", error: error.message });
@@ -259,8 +262,6 @@ async function updateAttendanceStatus(req, res) {
         } else {
             return res.status(400).json({ message: "Either attendanceId or studentId and date must be provided" });
         }
-        
-        telegram_service.sendMessage(process.env.TG_CHAT_ID, `Attendance updated: Student ${updated.student} on ${updated.day} is now marked as ${updated.status}`);
         res.status(200).json({ message: "Attendance status updated", record: updated });
     } catch (error) {
         res.status(500).json({ message: "Error updating attendance", error: error.message });
