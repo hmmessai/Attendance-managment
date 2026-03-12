@@ -40,7 +40,11 @@ const Home = (props) => {
                 );
                 console.log(response);
                 setAttendances(response.data);
-                toast.warning("Attendance records loaded for " + attendanceDate);
+                if (response.data == []) {
+                    toast.warning("No attendance records found for this date");
+                } else {
+                    toast.success("Attendance records loaded for " + attendanceDate);
+                }
             } catch (err) {
                 console.log("Error fetching attendances:", err);
                 if (err.response && err.response.status === 404) {
@@ -109,6 +113,8 @@ const Home = (props) => {
                 }
             );
             console.log(response);
+            toast.success("Attendance created successfully for " + attendanceDate);
+            reload
         } catch (err) {
             console.log("Error creating attendance:", err);
             if (err.status === 400) {
@@ -123,9 +129,9 @@ const Home = (props) => {
         }
     };
 
-    if (loadingSearch) {
-        return <Loading message="Loading page..."></Loading>
-    }
+    // if (loadingSearch) {
+    //     return <Loading message="Loading page..."></Loading>
+    // }
 
     return (
         <div>
