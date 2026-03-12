@@ -5,6 +5,7 @@ const path = require('path');
 const morgan = require('morgan');
 const dotenv = require('dotenv');
 const fs = require('fs');
+const bot = require('./utilities/telegram_bot');
 
 const authRouter = require('./Routes/authRoute');
 const studentRouter = require('./Routes/studentRoute');
@@ -42,6 +43,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/student', studentRouter);
 app.use('/api/attendance', attendanceRouter);
 
+bot.launch();
 
 // Start the server
 const PORT = process.env.PORT || 5000;

@@ -8,7 +8,8 @@ const {
     clearAllRecords,
     createYearlyAttendanceAll,
     postBulkAttendance,
-    dailyAttendanceAll
+    dailyAttendanceAll,
+    lockAttendance
  } = require("../Controllers/attendanceController");
 const {protect } = require("../Controllers/authController");
 
@@ -21,5 +22,6 @@ router.post("/create-yearly-all", protect, createYearlyAttendanceAll);
 router.delete("/clear-records", protect, clearAllRecords);
 router.post("/post-bulk", protect, postBulkAttendance);
 router.post("/daily-all", protect, dailyAttendanceAll);
+router.post("/lock", protect, lockAttendance);
 
 module.exports = router;

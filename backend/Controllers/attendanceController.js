@@ -1,6 +1,7 @@
 const Attendance = require("../Models/Attendance");
 const Student = require("../Models/Student");
 const dotenv = require("dotenv");
+const telegram_service = require("../utilities/telegram_service");
 
 dotenv.config();
 
@@ -105,6 +106,16 @@ async function createYearlyAttendance(req, res) {
             return res.status(400).json({ message: "Attendance already recorded today" });
         }
         res.status(500).json({ message: "Error creating attendance", error: error.message });
+    }
+}
+
+async function lockAttendance(req, res) {
+    try {
+        const { date } = req.body;
+        const result = await Attendance.updateMany({ day: date }, { $set: { locked: true } });
+        res.status(200).json({ message: "Attendance locked for the day", modifiedCount: result.nModified });
+    } catch (error) {
+        res.status(500).json({ message: "Error locking attendance", error: error.message });
     }
 }
 
@@ -249,6 +260,7 @@ async function updateAttendanceStatus(req, res) {
             return res.status(400).json({ message: "Either attendanceId or studentId and date must be provided" });
         }
         
+        telegram_service.sendMessage(process.env.TG_CHAT_ID, `Attendance updated: Student ${updated.student} on ${updated.day} is now marked as ${updated.status}`);
         res.status(200).json({ message: "Attendance status updated", record: updated });
     } catch (error) {
         res.status(500).json({ message: "Error updating attendance", error: error.message });
@@ -316,5 +328,6 @@ module.exports = {
     createYearlyAttendanceAll,
     clearAllRecords,
     postBulkAttendance,
-    dailyAttendanceAll
+    dailyAttendanceAll,
+    lockAttendance
 };

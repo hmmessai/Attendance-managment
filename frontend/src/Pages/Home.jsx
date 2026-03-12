@@ -15,19 +15,14 @@ const Home = (props) => {
     const { state } = useContext(AuthContext);
     const { user, isAuthenticated } = state;
     const [attendances, setAttendances] = useState([]);
-    const [message, setMessage] = useState({});
-    const [loading, setLoading] = useState(false);
-    const [loadingSearch, setLoadingSearch] = useState(true);
+    const [loading, setLoading] = useState(true);
+    // const [loadingSearch, setLoadingSearch] = useState(true);
 
     useEffect(() => {
         
         const fetchStudents = async () => {
             // setMessage(null);
             try {
-                if (!loading) {
-                    setLoadingSearch(true);
-                }
-                
                 console.log(attendanceDate);
                 const response = await axiosInstance.post(endPoint.FULLATTENDANCEBYDATE,
                     { "date": attendanceDate },
@@ -42,9 +37,7 @@ const Home = (props) => {
                 setAttendances(response.data);
                 if (response.data == []) {
                     toast.warning("No attendance records found for this date");
-                } else {
-                    toast.success("Attendance records loaded for " + attendanceDate);
-                }
+                } 
             } catch (err) {
                 console.log("Error fetching attendances:", err);
                 if (err.response && err.response.status === 404) {
@@ -56,7 +49,7 @@ const Home = (props) => {
                     toast.error("Error fetching attendances");
                 }
             } finally {
-                setLoadingSearch(false);
+                setLoading(false);
             }
         };
 
@@ -100,7 +93,6 @@ const Home = (props) => {
         const token = Cookies.get("token");
         console.log(token);
         try {
-            setLoadingSearch(true);
             const response = await axiosInstance.post(
                 endPoint.CREATEDAILYFORALL, 
                 {
@@ -114,7 +106,6 @@ const Home = (props) => {
             );
             console.log(response);
             toast.success("Attendance created successfully for " + attendanceDate);
-            reload
         } catch (err) {
             console.log("Error creating attendance:", err);
             if (err.status === 400) {
@@ -125,7 +116,7 @@ const Home = (props) => {
                 toast.error(err.message);
             }
         } finally {
-            setLoadingSearch(false);
+            setLoading(false);
         }
     };
 
@@ -145,11 +136,12 @@ const Home = (props) => {
                 } */}
                 <ToastContainer position="top-right" autoClose={3000} hideProgressBar={true} closeOnClick={true} pauseOnHover={true} draggable={true} theme="colored" />
                 <div className="d-flex align-items-center justify-content-between mb-3">
-                        <input type="date" value={attendanceDate} onChange={(e) => { setAttendanceDate(e.target.value); setLoadingSearch(true); }} className="form-control w-50 mb-3"/>
+                        <input type="date" value={attendanceDate} onChange={(e) => { setAttendanceDate(e.target.value); setLoading(true); }} className="form-control w-50 mb-3"/>
+                        {isAuthenticated && (
                         <div className="ms-auto">
-                            <button className="btn btn-success mb-3 mx-2 float-end" onClick={(e) => { e.preventDefault(); createAttendance(); }}>Create Attendance</button>
-                            <button className="btn btn-warning mb-3 mx-2 float-end" onClick={(e) => { e.preventDefault(); createAttendance(); }}>Update Attendance</button>
-                        </div>
+                            <button className="btn btn-success mb-3 mx-2 float-end" onClick={(e) => { e.preventDefault(); createAttendance(); setLoading(true);}}>Create Attendance</button>
+                            <button className="btn btn-warning mb-3 mx-2 float-end" onClick={(e) => { e.preventDefault(); }}>Update Attendance</button>
+                        </div>)}
                 </div> 
                 <div className="position-relative">
 
@@ -171,7 +163,8 @@ const Home = (props) => {
                         <th>Section</th>
                         <th>Day</th>
                         <th>Status</th>
-                        <th>Change</th>
+                        {isAuthenticated && (
+                        <th>Change</th>)}
                     </tr>
                     </thead>
 
@@ -183,6 +176,7 @@ const Home = (props) => {
                         <td>{attendance.student.section || "Unknown Section"}</td>
                         <td>{attendance.day || "Unknown Day"}</td>
                         <td>{attendance.status ? attendance.status : "Not Set"}</td>
+                        {isAuthenticated && !attendance.locked && (
                         <td>
                             <button
                             className="btn btn-success p-1 mx-1"
@@ -206,7 +200,7 @@ const Home = (props) => {
                             >
                             P
                             </button>
-                        </td>
+                        </td>)}
                         </tr>
                     ))}
                     </tbody>

@@ -15,6 +15,10 @@ const attendanceSchema = new mongoose.Schema({
         ref: 'Student',
         required: true,
     },
+    locked: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 attendanceSchema.index({ student: 1, day: 1 }, { unique: true });
