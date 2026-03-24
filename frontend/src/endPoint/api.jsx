@@ -1,6 +1,4 @@
 import axios from "axios";
-import {dotenv} from "dotenv";
-dotenv.config();
 
 const BaseUrl = process.env.BACKEND_URI || "https://supreme-journey-6x6qr77v76xf4wj9-5000.app.github.dev/api";
 
