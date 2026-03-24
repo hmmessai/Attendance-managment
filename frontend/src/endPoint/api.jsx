@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BaseUrl = process.env.BACKEND_URI || "https://supreme-journey-6x6qr77v76xf4wj9-5000.app.github.dev/api";
+const BaseUrl = process.env.BACKEND_URI;
 
 const endPoint = {
     LOGIN: `${BaseUrl}/auth/login`,
