@@ -16,6 +16,7 @@ const Home = (props) => {
     const { user, isAuthenticated } = state;
     const [attendances, setAttendances] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [section, setSection] = useState("");
     // const [loadingSearch, setLoadingSearch] = useState(true);
 
     useEffect(() => {
@@ -25,7 +26,7 @@ const Home = (props) => {
             try {
                 console.log(attendanceDate);
                 const response = await axiosInstance.post(endPoint.FULLATTENDANCEBYDATE,
-                    { "date": attendanceDate },
+                    { "date": attendanceDate, "section": section },
                     {
                         headers: {
                             "Authorization": `Bearer ${Cookies.get("token")}`,
@@ -42,7 +43,7 @@ const Home = (props) => {
                 console.log("Error fetching attendances:", err);
                 if (err.response && err.response.status === 404) {
                     setAttendances([]);
-                    toast.warning("No attendance records found for this date");
+                    toast.warning("No attendance records found for this date and section");
                 } else if (err.response && err.response.status === 401) {
                     toast.error("Unauthorized. Please log in again.");
                 } else {
@@ -54,7 +55,7 @@ const Home = (props) => {
         };
 
         fetchStudents();
-    }, [loading,  attendanceDate]);
+    }, [loading,  attendanceDate, section]);
 
     const handleStatusChange = async (attendanceId, status) => {
         const token = Cookies.get("token");
@@ -88,6 +89,39 @@ const Home = (props) => {
         }
     };
 
+    const lockAttendance = async () => {
+        const token = Cookies.get("token");
+        console.log(token);
+        try {
+            const response = await axiosInstance.post(
+                endPoint.LOCKATTENDANCE, 
+                {
+                    "date": attendanceDate,
+                },
+                {
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                }
+            );
+            console.log(response);
+            toast.success("Attendance locked successfully for " + attendanceDate);
+        } catch (err) {
+            console.log("Error locking attendance:", err);
+            if (err.status === 401) {
+                toast.error("Unauthorized. Please log in again.");
+            } 
+            else if (err.status === 404) {
+                toast.warning("No attendance records found for the specified date");
+            }
+            else {
+                toast.error(err.message);
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
+
 
     const createAttendance = async () => {
         const token = Cookies.get("token");
@@ -97,6 +131,7 @@ const Home = (props) => {
                 endPoint.CREATEDAILYFORALL, 
                 {
                     "date": attendanceDate,
+                    "section": section
                 },
                 {
                     headers: {
@@ -135,12 +170,39 @@ const Home = (props) => {
                     </div>
                 } */}
                 <ToastContainer position="top-right" autoClose={3000} hideProgressBar={true} closeOnClick={true} pauseOnHover={true} draggable={true} theme="colored" />
-                <div className="d-flex align-items-center justify-content-between mb-3">
-                        <input type="date" value={attendanceDate} onChange={(e) => { setAttendanceDate(e.target.value); setLoading(true); }} className="form-control w-50 mb-3"/>
+                <div className="d-flex align-items-center justify-content-between mb-3 mt-3">
+                        <input type="date" value={attendanceDate} onChange={(e) => { setAttendanceDate(e.target.value); setLoading(true); }} className="form-control w-25 mb-3 mx-2"/>
+                        <select
+                            value={section}
+                            size={5}
+                            onChange={(e) => {
+                                setSection(e.target.value);
+                                setLoading(true);
+                            }}
+                            className="form-control w-25 mb-3 mx-2"
+                            >
+                            <option value="">All Sections(ሁሉም)</option>
+                            <option value="1">1ኛ ክፍል</option>
+                            <option value="2">2ኛ ክፍል</option>
+                            <option value="3">3ኛ ክፍል</option>
+                            <option value="4">4ኛ ክፍል</option>
+                            <option value="5">5ኛ ክፍል</option>
+                            <option value="6">6ኛ ክፍል</option>
+                            <option value="7">7ኛ ክፍል</option>
+                            <option value="8">8ኛ ክፍል</option>
+                            <option value="9">9ኛ ክፍል</option>
+                            <option value="10">10ኛ ክፍል</option>
+                            <option value="11">ዮሐንስ ቀዳማይ</option>
+                            <option value="12">ዮሐንስ ካልዐይ</option>
+                            <option value="13">ዮሐንስ ሳልሳይ</option>
+                            <option value="14">ዮሐንስ ማዕከላዊ</option>
+                        </select>
+                        
                         {isAuthenticated && (
                         <div className="ms-auto">
                             <button className="btn btn-success mb-3 mx-2 float-end" onClick={(e) => { e.preventDefault(); createAttendance(); setLoading(true);}}>Create Attendance</button>
                             <button className="btn btn-warning mb-3 mx-2 float-end" onClick={(e) => { e.preventDefault(); }}>Update Attendance</button>
+                            <button className="btn btn-primary mb-3 mx-2 float-end" onClick={(e) => { e.preventDefault(); lockAttendance(); setLoading(true);}}>Lock Attendance</button>
                         </div>)}
                 </div> 
                 <div className="position-relative">
@@ -176,7 +238,7 @@ const Home = (props) => {
                         <td>{attendance.student.section || "Unknown Section"}</td>
                         <td>{attendance.day || "Unknown Day"}</td>
                         <td>{attendance.status ? attendance.status : "Not Set"}</td>
-                        {isAuthenticated && !attendance.locked && (
+                        {isAuthenticated && ( attendance.locked ? <td>Locked</td> :
                         <td>
                             <button
                             className="btn btn-success p-1 mx-1"

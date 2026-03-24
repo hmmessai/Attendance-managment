@@ -1,5 +1,6 @@
 const Attendance = require("../Models/Attendance");
 const Student = require("../Models/Student");
+const User = require("../Models/User");
 const dotenv = require("dotenv");
 const telegram_service = require("../utilities/telegram_service");
 
@@ -26,10 +27,17 @@ async function getFullStudentAttendance(req, res) {
 
 async function getFullStudentsAttendanceonSpecificDate(req, res) {
     try {
-        const { date } = req.body;
-        const studentAttendance = await Attendance
-                .find({day: date })
-                .populate("student", "name _id section");
+        const { date, section } = req.body;
+        
+        let studentAttendance = await Attendance
+            .find({day: date})
+            .populate({
+                    path: "student",
+                    match: section !== "" ? { section: section } : {},
+                    select: "name _id section"
+                });
+
+        studentAttendance = studentAttendance.filter(a => a.student !== null);
 
         if (!studentAttendance.length) {
             return res.status(404).json({ message: "No attendance records found" });
@@ -55,7 +63,6 @@ async function getFullStudentsAttendanceonSpecificDate(req, res) {
         //         });
         //     }
         // }
-        console.log("successfully fetched all attendance");
         res.status(200).json(studentAttendance);
     } catch (error) {
         res.status(500).json({ message: "Error fetching attendance", error: error.message });
@@ -112,11 +119,23 @@ async function createYearlyAttendance(req, res) {
 async function lockAttendance(req, res) {
     try {
         const { date } = req.body;
-        const result = await Attendance.updateMany({ day: date }, { $set: { locked: true } });
-        for (const updated of result) {
-            telegram_service.sendMessage(process.env.TG_CHAT_ID, `Student ${updated.student} on ${updated.day} is now locked`);
+        const updated = await Attendance.updateMany({ day: date }, { $set: { locked: true } });
+        if (updated.modifiedCount === 0) {
+            return res.status(404).json({ message: "No atttendance records were locked" });
         }
-        res.status(200).json({ message: "Attendance locked for the day", modifiedCount: result.nModified });
+        const result = await Attendance.find({ day: date }).populate("student", "name");
+
+        for (const updated of result) {
+            if (updated.status === "Absent") {
+                const student = await Student.findById(updated.student._id);
+                const user = await User.findOne({ student_id: student._id });
+                if (user && user.telegram_id) {
+                    telegram_service.sendMessage(user.telegram_id, `Student ${updated.student.name} didn't attend on ${updated.day}
+                                                                            ተማሪ ${updated.student.name} በቀን ${updated.day} አልተገኘም`);
+                }
+            }
+        }
+        res.status(200).json({ message: `Attendance locked for the day. `, modifiedCount: updated.modifiedCount });
     } catch (error) {
         res.status(500).json({ message: "Error locking attendance", error: error.message });
     }

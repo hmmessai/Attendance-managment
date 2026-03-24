@@ -17,6 +17,7 @@ const endPoint = {
     YEARLYATTENDANCE: `${BaseUrl}/attendance/create-yearly`,
     YEARLYATTENDANCEALL: `${BaseUrl}/attendance/create-yearly-all`,
     UPDATEATTENDANCE: `${BaseUrl}/attendance/update-status`,
+    LOCKATTENDANCE: `${BaseUrl}/attendance/lock`,
 }
 
 const axiosInstance = axios.create({
