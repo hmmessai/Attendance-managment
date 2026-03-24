@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BaseUrl = process.env.BACKEND_URI;
+const BaseUrl = process.env.REACT_APP_API_URI;
 
 const endPoint = {
     LOGIN: `${BaseUrl}/auth/login`,
