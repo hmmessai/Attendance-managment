@@ -37,7 +37,7 @@ const register = async (req, res) => {
         res.status(200).json({ 
             message: "User registered successfully",
             token: token,
-            user: { name: newUser.name, email: newUser.email }
+            user: { name: newUser.name, email: newUser.email, role: newUser.role }
         });
     } catch (error) {
         console.error("Registration error:", error.message);
@@ -63,7 +63,7 @@ const login = async (req, res) => {
 
         const token = createToken(user);
 
-        res.json({ token: token, user: { name: user.name, email: user.email } });
+        res.json({ token: token, user: { name: user.name, email: user.email, role: user.role } });
     } catch (error) {
         console.error("Login error:", error.message);
         res.status(500).json({ message: error.message });
@@ -81,7 +81,8 @@ const currentUser = async (req, res) => {
         const user = req.user;
         res.status(200).json({
             "name": user.name,
-            "email": user.email
+            "email": user.email,
+            "role": user.role,
         });
     } catch (error) {
         console.error("Current user error:", error.message);

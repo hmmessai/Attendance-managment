@@ -1,4 +1,5 @@
-require("dotenv").config(); // load .env
+require("dotenv").config();
+const bcrypt = require("bcrypt");
 const { Telegraf, Markup } = require("telegraf");
 const Student = require("../Models/Student");
 const User = require("../Models/User");
@@ -107,10 +108,12 @@ bot.action(/STUDENT_\w+/, async (ctx) => {
         await userExists.save();
       }
     } else {
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(ctx.from.username || " ", salt);
       const user = await User.create({
         "name": ctx.from.first_name || ctx.from.id,
         "email": `${ctx.from.id}@hass.et`,
-        "password": ctx.from.username || " ",
+        "password": hashedPassword,
         "telegram_id": ctx.chat.id,
       });
       user.student_id.push(student._id);

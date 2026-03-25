@@ -1,4 +1,5 @@
 import React, { useContext, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import '../App.css';
@@ -17,6 +18,7 @@ const Home = (props) => {
     const [attendances, setAttendances] = useState([]);
     const [loading, setLoading] = useState(true);
     const [section, setSection] = useState("");
+    const navigate = useNavigate();
     // const [loadingSearch, setLoadingSearch] = useState(true);
 
     useEffect(() => {
@@ -163,14 +165,14 @@ const Home = (props) => {
         <div>
             <Header isAuthenticated={isAuthenticated} user={user ? user.name : null} role={user ? user.role: null}></Header>
             <div className="container" style={{margin: '10vh auto auto'}}>
-                <h1>Student Attendance Dashboard</h1>
+                <h1 className="text-center mt-4 pt-4">Student Attendance Dashboard</h1>
                 {/* {message &&
                     <div className={`alert alert-${message.type} text-center w-50 mx-auto`} role="alert">
                     {message.message}
                     </div>
                 } */}
                 <ToastContainer position="top-right" autoClose={3000} hideProgressBar={true} closeOnClick={true} pauseOnHover={true} draggable={true} theme="colored" />
-                <div className="d-flex align-items-center justify-content-between mb-3 mt-3">
+                <div className="d-flex flex-column-sm align-items-center justify-content-between mb-3 mt-3">
                         <input type="date" value={attendanceDate} onChange={(e) => { setAttendanceDate(e.target.value); setLoading(true); }} className="form-control w-25 mb-3 mx-2"/>
                         <select
                             value={section}
@@ -198,11 +200,14 @@ const Home = (props) => {
                             <option value="14">ዮሐንስ ማዕከላዊ</option>
                         </select>
                         
-                        {isAuthenticated && (
+                        {isAuthenticated && user && user.role !== "Visitor" && (
                         <div className="ms-auto">
                             <button className="btn btn-success mb-3 mx-2 float-end" onClick={(e) => { e.preventDefault(); createAttendance(); setLoading(true);}}>Create Attendance</button>
                             <button className="btn btn-warning mb-3 mx-2 float-end" onClick={(e) => { e.preventDefault(); }}>Update Attendance</button>
                             <button className="btn btn-primary mb-3 mx-2 float-end" onClick={(e) => { e.preventDefault(); lockAttendance(); setLoading(true);}}>Lock Attendance</button>
+                            {isAuthenticated && user && user.role === "Admin" && (
+                                <button className="btn btn-info mb-3 mx-2 float-end" onClick={(e) => { e.preventDefault(); navigate('/add-student')}}>Add Students</button>
+                            )}
                         </div>)}
                 </div> 
                 <div className="position-relative">
