@@ -48,7 +48,6 @@ export default function StudentChoice( props ) {
     }, [loading]);
 
     const getAttendance = () => {
-        props.setStudent(students[0]);
     }
 
     return (
