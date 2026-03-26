@@ -34,6 +34,16 @@ bot.hears("Subscribe", (ctx) => {
   ]));
 })
 
+bot.action("STUDENT", async (ctx) => {
+  ctx.reply("በሰንበት ት/ቤቱ ውስጥ ትምህርት የሚክታተሉበትን ጉባኤ ይምረጡ",
+    Markup.keyboard(
+      [1, 2, 3, 4],
+      [5, 6, 7, 8],
+      [ማዕከላዊ, ሳልሳይ, ካልዐይ, ቀዳማይ]
+    )
+  )
+})
+
 // Inline button actions
 bot.action("PARENT", async (ctx) => {
   ctx.reply("Choose the grade of your child:",
