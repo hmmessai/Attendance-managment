@@ -83,6 +83,7 @@ const currentUser = async (req, res) => {
             "name": user.name,
             "email": user.email,
             "role": user.role,
+            "id": user.id,
         });
     } catch (error) {
         console.error("Current user error:", error.message);

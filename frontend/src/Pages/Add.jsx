@@ -1,33 +1,59 @@
 import { useState, useContext } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { AuthContext } from "../Components/Auth/AuthContext";
+import { endPoint, axiosInstance } from "../endPoint/api";
+import Header from "../Components/Other/Header";
+import Cookies from "js-cookie";
 
 const Add = (props) => {
     const [name, setName] = useState("");
     const [error, setError] = useState(null);
-    const [isError, setisError] = useState(false);
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const { signUp } = useContext(AuthContext);
+    const [section, setSection] = useState("");
+    const [loading, setLoading] = useState(false);
+    const { state } = useContext(AuthContext);
+    const { isAuthenticated, user } = state;
 
     const submitHandler = async (e) => {
         try {
-            setisError(false);
-            setError(null);
+            setLoading(true);
             e.preventDefault();
-            await signUp(name, email, password);
+            const response = await axiosInstance.post(endPoint.NEWSTUDENT,
+                { "name": name, "section": section },
+                {
+                    headers: {
+                        "Authorization": `Bearer ${Cookies.get("token")}`,
+                        "Content-Type": "application/json"
+                    }
+                }
+            );
+            if (response.status === 201) {
+                toast.success(`Student ${name} added successfully`);
+            } else {
+                toast.error("Failed to add student");
+            }
         } catch (err) {
-            setisError(true);
-            setError(err.response?.data?.message || 'An error occurred during signup');
+            console.log("Error creating student:", err);
+            if (err.response && err.response.data && err.response.data.message) {
+                toast.error(err.response.data.message);
+            } else {
+                toast.error("An unexpected error occurred");
+            }
+        } finally {
+            setLoading(false);
+            setName("");
+            setSection("");
         }
         
     };
     return (
-        <div>
-            <div className="text-center p-5 m-4 fs-4">Signup</div>
+        <>
+            <Header isAuthenticated={isAuthenticated} user={user ? user.name : null} role={user ? user.role: null}></Header>
+                        <div className="container" style={{margin: '10vh auto auto'}}>
+                            <h1 className="text-center mt-4 pt-4">Student Attendance Dashboard</h1>
+            <div className="text-center p-5 m-4 fs-4">Add Student Modal</div>
             <div className="d-flex flex-column justify-content-center align-items-center">
-                {isError?<div className="card p-2 bg-danger text-white mb-3 w-50 text-center">
-                    <p>{error && <span>{error}</span>}</p>
-                </div>:null}
+                <ToastContainer position="top-right" autoClose={3000} hideProgressBar={true} closeOnClick={true} pauseOnHover={true} draggable={true} theme="colored" />
                 <form className="w-50" onSubmit={submitHandler} action="">
                     <div className="d-flex flex-column gap-3">
                     <input
@@ -39,37 +65,46 @@ const Add = (props) => {
                         }}
                     />
 
-                    <input
-                        type="email"
-                        className="form-control p-3"
-                        placeholder="Email Address"
-                        onChange={(e) => {
-                        setEmail(e.target.value);
-                        }}
-                    />
+                    <select
+                            value={section}
+                            onChange={(e) => {
+                                setSection(e.target.value);
+                                setLoading(true);
+                            }}
+                            className="form-control mb-3 mx-2"
+                            >
+                            <option value="1">1ኛ ክፍል</option>
+                            <option value="2">2ኛ ክፍል</option>
+                            <option value="3">3ኛ ክፍል</option>
+                            <option value="4">4ኛ ክፍል</option>
+                            <option value="5">5ኛ ክፍል</option>
+                            <option value="6">6ኛ ክፍል</option>
+                            <option value="7">7ኛ ክፍል</option>
+                            <option value="8">8ኛ ክፍል</option>
+                            <option value="9">9ኛ ክፍል</option>
+                            <option value="10">10ኛ ክፍል</option>
+                            <option value="11">ዮሐንስ ቀዳማይ</option>
+                            <option value="12">ዮሐንስ ካልዐይ</option>
+                            <option value="13">ዮሐንስ ሳልሳይ</option>
+                            <option value="14">ዮሐንስ ማዕከላዊ</option>
+                        </select>
 
-                    <input 
-                        type="password"
-                        className="form-control p-3"
-                        placeholder="Password"
-                        onChange={(e) => {
-                        setPassword(e.target.value);
-                        }}
-                    />
+                    
                     </div>
                     <div className="my-3">
                     
                     </div>
                     <div className="d-grid">
-                    <button
-                        type="submit"
-                        className="btn btn-primary action-btn fs-5 fw-semibold">
-                        Sign Up
-                    </button>
+                        <button
+                            type="submit"
+                            className="btn btn-dark action-btn fs-5 fw-semibold">
+                            Add Student
+                        </button>
                     </div>
                 </form>
             </div>
         </div>
+    </>
     );
 };
 

@@ -8,6 +8,7 @@ const endPoint = {
     ME: `${BaseUrl}/auth/currentUser`,
     STUDENTS: `${BaseUrl}/student/all`,
     GETSTUDENT: `${BaseUrl}/student/get`,
+    GETSTUDENTBYUSER: `${BaseUrl}/student/get-by-user`,
     NEWSTUDENT: `${BaseUrl}/student/create`,
     POSTATTENDANCE: `${BaseUrl}/attendance/post-bulk`,
     CREATEDAILYFORALL: `${BaseUrl}/attendance/daily-all`,

@@ -1,5 +1,6 @@
 const Student = require("../Models/Student");
 const Attendance = require("../Models/Attendance");
+const User = require ("../Models/User");
 const dotenv = require("dotenv");
 
 dotenv.config();
@@ -39,6 +40,17 @@ const getStudent = async (req, res) => {
     }
 };
 
+const getStudentByUser = async (req, res) => {
+    const user = req.user
+    try {
+        const userdata = await User.findById(user.id).populate({ path: 'student_id', select: '_id name section' });
+
+        res.status(201).json({'students': userdata.student_id});
+    } catch (error){
+        res.status(500).json({'message': error.message});
+    };
+}
+
 const createStudent = async (req, res) => {
     try {
         const { name, section } = req.body;
@@ -60,4 +72,4 @@ const createStudent = async (req, res) => {
 };
 
 
-module.exports = { allStudents, getStudent, createStudent };
+module.exports = { allStudents, getStudent, createStudent, getStudentByUser };

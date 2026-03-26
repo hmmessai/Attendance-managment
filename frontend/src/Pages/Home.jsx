@@ -5,6 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 import '../App.css';
 import { AuthContext } from "../Components/Auth/AuthContext";
 import Header from "../Components/Other/Header";
+import StudentChoice from "../Components/Other/StudentChoice";
 import { endPoint, axiosInstance } from "../endPoint/api";
 import Loading from "../Components/Other/Loading";
 import Cookies from "js-cookie";
@@ -166,117 +167,124 @@ const Home = (props) => {
             <Header isAuthenticated={isAuthenticated} user={user ? user.name : null} role={user ? user.role: null}></Header>
             <div className="container" style={{margin: '10vh auto auto'}}>
                 <h1 className="text-center mt-4 pt-4">Student Attendance Dashboard</h1>
-                {/* {message &&
-                    <div className={`alert alert-${message.type} text-center w-50 mx-auto`} role="alert">
-                    {message.message}
-                    </div>
-                } */}
+
                 <ToastContainer position="top-right" autoClose={3000} hideProgressBar={true} closeOnClick={true} pauseOnHover={true} draggable={true} theme="colored" />
-                <div className="d-flex flex-column-sm align-items-center justify-content-between mb-3 mt-3">
-                        <input type="date" value={attendanceDate} onChange={(e) => { setAttendanceDate(e.target.value); setLoading(true); }} className="form-control w-25 mb-3 mx-2"/>
-                        <select
-                            value={section}
-                            size={5}
-                            onChange={(e) => {
-                                setSection(e.target.value);
-                                setLoading(true);
-                            }}
-                            className="form-control w-25 mb-3 mx-2"
-                            >
-                            <option value="">All Sections(ሁሉም)</option>
-                            <option value="1">1ኛ ክፍል</option>
-                            <option value="2">2ኛ ክፍል</option>
-                            <option value="3">3ኛ ክፍል</option>
-                            <option value="4">4ኛ ክፍል</option>
-                            <option value="5">5ኛ ክፍል</option>
-                            <option value="6">6ኛ ክፍል</option>
-                            <option value="7">7ኛ ክፍል</option>
-                            <option value="8">8ኛ ክፍል</option>
-                            <option value="9">9ኛ ክፍል</option>
-                            <option value="10">10ኛ ክፍል</option>
-                            <option value="11">ዮሐንስ ቀዳማይ</option>
-                            <option value="12">ዮሐንስ ካልዐይ</option>
-                            <option value="13">ዮሐንስ ሳልሳይ</option>
-                            <option value="14">ዮሐንስ ማዕከላዊ</option>
-                        </select>
-                        
-                        {isAuthenticated && user && user.role !== "Visitor" && (
-                        <div className="ms-auto">
-                            <button className="btn btn-success mb-3 mx-2 float-end" onClick={(e) => { e.preventDefault(); createAttendance(); setLoading(true);}}>Create Attendance</button>
-                            <button className="btn btn-warning mb-3 mx-2 float-end" onClick={(e) => { e.preventDefault(); }}>Update Attendance</button>
-                            <button className="btn btn-primary mb-3 mx-2 float-end" onClick={(e) => { e.preventDefault(); lockAttendance(); setLoading(true);}}>Lock Attendance</button>
-                            {isAuthenticated && user && user.role === "Admin" && (
-                                <button className="btn btn-info mb-3 mx-2 float-end" onClick={(e) => { e.preventDefault(); navigate('/add-student')}}>Add Students</button>
-                            )}
-                        </div>)}
-                </div> 
-                <div className="position-relative">
+                {!isAuthenticated ? <div></div> : ( 
+                <div> 
+                    {user && user.role === "Visitor" ? 
+                    <div>
+                        <StudentChoice/>
+                    </div>
+                     : (
+                        <div>
+                            <div className="d-flex flex-column-sm align-items-center justify-content-between mb-3 mt-3">
+                                    <input type="date" value={attendanceDate} onChange={(e) => { setAttendanceDate(e.target.value); setLoading(true); }} className="form-control w-25 mb-3 mx-2"/>
+                                    <select
+                                        value={section}
+                                        size={5}
+                                        onChange={(e) => {
+                                            setSection(e.target.value);
+                                            setLoading(true);
+                                        }}
+                                        className="form-control w-25 mb-3 mx-2"
+                                        >
+                                        <option value="">All Sections(ሁሉም)</option>
+                                        <option value="1">1ኛ ክፍል</option>
+                                        <option value="2">2ኛ ክፍል</option>
+                                        <option value="3">3ኛ ክፍል</option>
+                                        <option value="4">4ኛ ክፍል</option>
+                                        <option value="5">5ኛ ክፍል</option>
+                                        <option value="6">6ኛ ክፍል</option>
+                                        <option value="7">7ኛ ክፍል</option>
+                                        <option value="8">8ኛ ክፍል</option>
+                                        <option value="9">9ኛ ክፍል</option>
+                                        <option value="10">10ኛ ክፍል</option>
+                                        <option value="11">ዮሐንስ ቀዳማይ</option>
+                                        <option value="12">ዮሐንስ ካልዐይ</option>
+                                        <option value="13">ዮሐንስ ሳልሳይ</option>
+                                        <option value="14">ዮሐንስ ማዕከላዊ</option>
+                                    </select>
+                                    
+                                    {isAuthenticated && user && user.role !== "Visitor" && (
+                                    <div className="ms-auto">
+                                        <button className="btn btn-success mb-3 mx-2 float-end" onClick={(e) => { e.preventDefault(); createAttendance(); setLoading(true);}}>Create Attendance</button>
+                                        <button className="btn btn-warning mb-3 mx-2 float-end" onClick={(e) => { e.preventDefault(); }}>Update Attendance</button>
+                                        <button className="btn btn-primary mb-3 mx-2 float-end" onClick={(e) => { e.preventDefault(); lockAttendance(); setLoading(true);}}>Lock Attendance</button>
+                                        {isAuthenticated && user && user.role === "Admin" && (
+                                            <button className="btn btn-info mb-3 mx-2 float-end" onClick={(e) => { e.preventDefault(); navigate('/add-student')}}>Add Students</button>
+                                        )}
+                                    </div>)}
+                            </div> 
+                            <div className="position-relative">
 
-            {loading && (
-                <div className="loading-overlay">
-                <div className="spinner-border text-light"></div>
-                </div>
-            )}
+                                {loading && (
+                                    <div className="loading-overlay">
+                                    <div className="spinner-border text-light"></div>
+                                    </div>
+                                )}
 
-            {attendances.length === 0 ? (
-                <p>No attendance records found.</p>
-            ) : (
-                <div>
-                <table className="table table-striped">
-                    <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Section</th>
-                        <th>Day</th>
-                        <th>Status</th>
-                        {isAuthenticated && (
-                        <th>Change</th>)}
-                    </tr>
-                    </thead>
+                                {attendances.length === 0 ? (
+                                    <p>No attendance records found.</p>
+                                ) : (
+                                    <div>
+                                    <table className="table table-striped">
+                                        <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Name</th>
+                                            <th>Section</th>
+                                            <th>Day</th>
+                                            <th>Status</th>
+                                            {isAuthenticated && (
+                                            <th>Change</th>)}
+                                        </tr>
+                                        </thead>
 
-                    <tbody>
-                    {attendances.map((attendance, index) => (
-                        <tr key={attendance._id || attendance.id}>
-                        <td>{index + 1}</td>
-                        <td>{attendance.student.name || "Unknown Name"}</td>
-                        <td>{attendance.student.section || "Unknown Section"}</td>
-                        <td>{attendance.day || "Unknown Day"}</td>
-                        <td>{attendance.status ? attendance.status : "Not Set"}</td>
-                        {isAuthenticated && ( attendance.locked ? <td>Locked</td> :
-                        <td>
-                            <button
-                            className="btn btn-success p-1 mx-1"
-                            onClick={() => {setLoading(true); handleStatusChange(attendance._id, "Present");}}>
-                            ✓
-                            </button>
+                                        <tbody>
+                                        {attendances.map((attendance, index) => (
+                                            <tr key={attendance._id || attendance.id}>
+                                            <td>{index + 1}</td>
+                                            <td>{attendance.student.name || "Unknown Name"}</td>
+                                            <td>{attendance.student.section || "Unknown Section"}</td>
+                                            <td>{attendance.day || "Unknown Day"}</td>
+                                            <td>{attendance.status ? attendance.status : "Not Set"}</td>
+                                            {isAuthenticated && ( attendance.locked ? <td>Locked</td> :
+                                            <td>
+                                                <button
+                                                className="btn btn-success p-1 mx-1"
+                                                onClick={() => {setLoading(true); handleStatusChange(attendance._id, "Present");}}>
+                                                ✓
+                                                </button>
 
-                            <button className="btn btn-danger p-1 mx-1" onClick={() => {setLoading(true); handleStatusChange(attendance._id, "Absent");}}>                         A
-                            </button>
+                                                <button className="btn btn-danger p-1 mx-1" onClick={() => {setLoading(true); handleStatusChange(attendance._id, "Absent");}}>                         A
+                                                </button>
 
-                            <button
-                            className="btn btn-warning p-1 mx-1"
-                            onClick={() => {setLoading(true); handleStatusChange(attendance._id, "Late-30mins");}}
-                            >
-                            L
-                            </button>
+                                                <button
+                                                className="btn btn-warning p-1 mx-1"
+                                                onClick={() => {setLoading(true); handleStatusChange(attendance._id, "Late-30mins");}}
+                                                >
+                                                L
+                                                </button>
 
-                            <button
-                            className="btn btn-primary p-1 mx-1"
-                            onClick={() => {setLoading(true); handleStatusChange(attendance._id, "Permission");}}
-                            >
-                            P
-                            </button>
-                        </td>)}
-                        </tr>
-                    ))}
-                    </tbody>
+                                                <button
+                                                className="btn btn-primary p-1 mx-1"
+                                                onClick={() => {setLoading(true); handleStatusChange(attendance._id, "Permission");}}
+                                                >
+                                                P
+                                                </button>
+                                            </td>)}
+                                            </tr>
+                                        ))}
+                                        </tbody>
 
-                </table>
-                </div>
-            )}
+                                    </table>
+                                    </div>
+                                )}
 
-            </div>
+                            </div>
+                    </div>)}
+                </div>)}
+                
             </div>
         </div>
     );
