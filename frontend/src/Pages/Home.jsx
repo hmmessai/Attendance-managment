@@ -74,8 +74,7 @@ const Home = (props) => {
                         "Authorization": `Bearer ${token}`,
                         "Content-Type": "application/json"
                     }
-                }
-            );
+                });
             console.log(response);
             toast.success("Attendance updated successfully");
         } catch (err) {
@@ -114,7 +113,9 @@ const Home = (props) => {
             if (err.status === 401) {
                 toast.error("Unauthorized. Please log in again.");
             } 
-            else if (err.status === 404) {
+            else if (err.status === 403) {
+                toast.error("Attendance date should be in the past to be locked.");
+            }else if (err.status === 404) {
                 toast.warning("No attendance records found for the specified date");
             }
             else {

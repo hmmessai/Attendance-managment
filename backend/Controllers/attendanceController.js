@@ -119,6 +119,12 @@ async function createYearlyAttendance(req, res) {
 async function lockAttendance(req, res) {
     try {
         const { date } = req.body;
+        const datev = new Date(date);
+        const today = new Date()
+        today.setHours(0, 0, 0, 0);
+        if (datev > today) {
+            return res.status(403).json({message: "Attendance date must be in the past."})
+        }
         const updated = await Attendance.updateMany({ day: date }, { $set: { locked: true } });
         if (updated.modifiedCount === 0) {
             return res.status(404).json({ message: "No atttendance records were locked" });

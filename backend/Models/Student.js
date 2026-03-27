@@ -10,7 +10,6 @@ const studentSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    attendance: [{type: mongoose.Schema.ObjectId, ref: 'Attendance'}]
 });
 
 const Student = mongoose.model("Student", studentSchema);

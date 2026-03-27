@@ -10,7 +10,7 @@ import { AuthContext } from "../Auth/AuthContext";
 export default function StudentChoice( props ) {
     const [students, setStudents] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [student, setStudent] = useState({});
+    const [student, setStudent] = useState(null);
     
 
     useEffect(() => {
@@ -46,31 +46,29 @@ export default function StudentChoice( props ) {
         };
 
         fetchStudents();
-    }, [loading]);
+    }, []);
 
     const getProfile = async (id) => {
+        const token = Cookies.get("token");
         try {
             setLoading(true);
-            const response = await axiosInstance.get(endPoint.GETSTUDENT,
+            console.log(token);
+            const response = await axiosInstance.get(
+                endPoint.GETSTUDENT,
                 {
-                    id: id,
-                },
-                {
+                    params: {id},
                     headers: {
-                        "Authorization": `Bearer ${Cookies.get("token")}`,
+                        "Authorization": `Bearer ${token}`,
                         "Content-Type": "application/json"
                     }
                 });
             
-            console.log(response);
+            console.log(response.data);
             setStudent(response.data);
         } catch (err) {
             console.log("Error fetching student Profile:", err);
-            if (err.response && err.response.status === 404) {
-                setStudents([]);
+            if (err.response && err.response.status === 401) {
                 toast.warning("Student profile could not be fetched");
-            } else if (err.response && err.response.status === 401) {
-                toast.error("Unauthorized. Please log in again.");
             } else {
                 toast.error("Internal Server Error");
             }
@@ -86,25 +84,49 @@ export default function StudentChoice( props ) {
                 <div className="spinner-border text-light"></div>
                 </div>
             )}
-            <div className="d-flex flex-column align-items-center justify-content-center" style={{ minHeight: "60vh", display: !student ? 'none': 'show' }}>
+            <div className="d-flex flex-column align-items-center justify-content-center" style={{ minHeight: "60vh", display: student !== {} ? 'none': 'show' }}>
                 <h2 className="mb-4">Select a Student</h2>
                 {students.map((student, index) => (
-                    <button key={student.id} className="btn btn-dark w-50 m-2" onClick={getProfile(student.id)}>
+                    <button key={student._id} className="btn btn-dark w-50 m-2" onClick={() => getProfile(student._id)}>
                         {student.name}
                     </button>
                 ))}
                 <div 
-                className="d-flex flex-row align-items-center justify-content-center"
-                style={{ display: student ? 'none' : 'flex' }}
+                className="container-fluid p-5 mt-3"
+                style={{ display: student ? 'block' : 'none' }}
                 >
-                    <h1>{student.name}</h1>
-                    {student.attendance.map((att, index) => {
-                        <div>
-                            <p>{index}</p>
-                            <p>{att.date}</p>
+                    <div className="d-flex flex-row align-items-center justify-content-between">
+                        <div className="align-self-start bg-dark p-3 pt-0 rounded-pill">
+                            <img src="https://picsum.photos/id/227/300/300" alt="profile-pic"/>
+                            <h2 className="text-center text-white">{student && student.name}</h2>
+                            <h3 className="text-center text-white">{student && student.section} ክፍል</h3>
                         </div>
-                        
-                    })}
+                        <div className="align-self-start">
+                            <h1>{student && student.name}'s Attendance Records</h1>
+                            <table className="table table-stripped flex-column align-items-center justify-content-left">
+                                <thead>
+                                    <tr key={student && student.id}>
+                                        <th>ID</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {student && student.attendance && student.attendance.map((att, index) => { 
+                                        return(
+                                            <tr key={att.id}>
+                                                <td>{index}</td>
+                                                <td>{att.day}</td>
+                                                <td style={{background: att.status === "Absent" ? 'red': ''}}>{att.status}</td>
+                                            </tr>
+                                        
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
                 </div>
             </div>
         </div>

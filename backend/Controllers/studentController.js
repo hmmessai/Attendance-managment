@@ -7,7 +7,10 @@ dotenv.config();
 
 const allStudents = async (req, res) => {
     try {
-        const students = await Student.find().populate({ path: 'attendance', select: '_id day status', options: { sort: { day: -1 } } }).sort({ section: -1, name: 1 });
+        const students = await Student.find();
+        for (student in students) {
+            
+        }
         const studentsWithProfile = students.map(student => ({
             "id": student._id,
             "name": student.name,
@@ -22,20 +25,26 @@ const allStudents = async (req, res) => {
 };
 
 const getStudent = async (req, res) => {
-    const {id} = req.body;
+    const {id} = req.query;
+    console.log(id)
     try {
-        const student = await Student.findById(id).populate({ path: 'attendance', select: '_id day status', options: { sort: { day: -1 } } });
+        const student = await Student.findById(id);
 
-        console.log(student.attendance);
+        const attendance = await Attendance.find({'student': id});
+        if (!student) {
+            console.log("Studnet not found");
+            return res.status(404).json({"message": "Student not found"})
+        }
         const student_profile = {
             id: student._id,
             name: student.name,
             section: student.section,
-            attendance: student.attendance
+            attendance: attendance
         };
 
         res.status(200).json(student_profile);
     } catch (error) {
+        console.log(error);
         res.status(401).json({"message": error.message});
     }
 };
