@@ -113,7 +113,7 @@ export default function StudentChoice( props ) {
                                         <td>{student.section}</td>
                                         <td>
                                             <button key={student.id} className="btn btn-dark w-50 m-2" onClick={() => getProfile(student.id)}>
-                                                 View Attendance
+                                                 View
                                             </button>
                                         </td>
                                     </tr>
