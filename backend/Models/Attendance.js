@@ -19,6 +19,10 @@ const attendanceSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
     },
+    timestamp: {
+        type: Date,
+        default: Date(),
+    },
 });
 
 attendanceSchema.index({ student: 1, day: 1 }, { unique: true });

@@ -7,11 +7,11 @@ dotenv.config();
 
 const allStudents = async (req, res) => {
     try {
-        const students = await Student.find();
+        const students = await Student.find().sort({ section: 1 });
         const studentsWithProfile = [];
         for (student of students) {
             const attendance = await Attendance.find({'student': student.id});
-            const s = {
+            let s = {
                 "id": student._id,
                 "name": student.name,
                 "section": student.section,

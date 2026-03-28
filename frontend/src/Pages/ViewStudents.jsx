@@ -97,7 +97,6 @@ export default function StudentChoice( props ) {
                             <thead>
                                 <tr>
                                     <td>No.</td>
-                                    <td>ID</td>
                                     <td>Name</td>
                                     <td>Section</td>
                                     <td>View</td>
@@ -106,9 +105,8 @@ export default function StudentChoice( props ) {
                             <tbody>
                                 {students.map((student, index) => (
                                     
-                                    <tr>
+                                    <tr key={student.id}>
                                         <td>{index}</td>
-                                        <td>{student.id}</td>
                                         <td>{student.name}</td>
                                         <td>{student.section}</td>
                                         <td>
@@ -125,7 +123,7 @@ export default function StudentChoice( props ) {
                             <table className="table table-stripped">
                                 {student.attendance.map((att, index) => {
                                     return(<tbody>
-                                        <tr>
+                                        <tr key={att.id}>
                                             <td>{index}</td>
                                             <td>{att.day}</td>
                                             <td style={{background: att.status === "Absent" ? 'red': ''}}>{att.status}</td>

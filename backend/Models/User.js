@@ -26,6 +26,10 @@ const userSchema = new mongoose.Schema({
         default: 'Visitor',
         required: true,
     },
+    timestamp: {
+        type: Date,
+        default: Date(),
+    },
     student_id: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Student' }],
 });
 
