@@ -92,8 +92,8 @@ export default function StudentChoice( props ) {
                         <div className="spinner-border text-light"></div>
                         </div>
                     )}
-                    <div className="d-flex flex-row align-items-start justify-content-start" style={{ minHeight: "60vh" }}>
-                        <table className="table table-stripped align-self-left w-50">
+                    <div className="d-flex flex-row align-items-start justify-content-between" style={{ minHeight: "60vh" }}>
+                        <table className="table table-stripped align-items-center w-50">
                             <thead>
                                 <tr>
                                     <td>No.</td>
@@ -112,9 +112,7 @@ export default function StudentChoice( props ) {
                                         <td>{student.name}</td>
                                         <td>{student.section}</td>
                                         <td>
-                                            <button key={student.id} className="btn btn-dark w-50 m-2" onClick={() => getProfile(student.id)}>
-                                                 View
-                                            </button>
+                                            <button key={student.id} className="btn btn-dark px-5" onClick={() => getProfile(student.id)}>View</button>
                                         </td>
                                     </tr>
                                 ))}
@@ -130,7 +128,7 @@ export default function StudentChoice( props ) {
                                         <tr>
                                             <td>{index}</td>
                                             <td>{att.day}</td>
-                                            <td>{att.status}</td>
+                                            <td style={{background: att.status === "Absent" ? 'red': ''}}>{att.status}</td>
                                         </tr>
                                     </tbody>)
                                 })}
