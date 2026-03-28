@@ -212,7 +212,10 @@ const Home = (props) => {
                                         <button className="btn btn-warning mb-3 mx-2 float-end" onClick={(e) => { e.preventDefault(); }}>Update Attendance</button>
                                         <button className="btn btn-primary mb-3 mx-2 float-end" onClick={(e) => { e.preventDefault(); lockAttendance(); setLoading(true);}}>Lock Attendance</button>
                                         {isAuthenticated && user && user.role === "Admin" && (
-                                            <button className="btn btn-info mb-3 mx-2 float-end" onClick={(e) => { e.preventDefault(); navigate('/add-student')}}>Add Students</button>
+                                            <div>
+                                                <button className="btn btn-info mb-3 mx-2 float-end" onClick={(e) => { e.preventDefault(); navigate('/add-student')}}>Add Students</button>
+                                                <button className="btn btn-info mb-3 mx-2 float-end" onClick={(e) => { e.preventDefault(); navigate('/view-students')}}>View Students</button>
+                                            </div>
                                         )}
                                     </div>)}
                             </div> 

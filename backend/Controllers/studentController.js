@@ -8,15 +8,17 @@ dotenv.config();
 const allStudents = async (req, res) => {
     try {
         const students = await Student.find();
-        for (student in students) {
-            
+        const studentsWithProfile = [];
+        for (student of students) {
+            const attendance = await Attendance.find({'student': student.id});
+            const s = {
+                "id": student._id,
+                "name": student.name,
+                "section": student.section,
+                "attendance": attendance
+            }
+            studentsWithProfile.push(s);
         }
-        const studentsWithProfile = students.map(student => ({
-            "id": student._id,
-            "name": student.name,
-            "section": student.section,
-            "attendance": student.attendance
-        }));
         res.status(200).json(studentsWithProfile);
     } catch (error) {
         console.log(error);
