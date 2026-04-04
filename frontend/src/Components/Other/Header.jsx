@@ -27,10 +27,6 @@ export default function Header( props ) {
                     <li class="nav-item ms-auto px-3">
                         <button className="nav-link active" href="#">Contact</button>
                     </li>
-                    {props.role ? 
-                    <li class="nav-item ms-auto px-3">
-                        <a className="nav-link active d-inline-block" href="/add-book"><i className="bi bi-plus"></i>Add</a>
-                    </li>:null}
                     <li class="nav-item ms-auto px-3">
                         <p className="nav-link active"><b>{props.user}</b></p>
                     </li>

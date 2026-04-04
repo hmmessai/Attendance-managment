@@ -7,7 +7,9 @@ import { AuthContext } from "../Components/Auth/AuthContext";
 import Header from "../Components/Other/Header";
 import StudentChoice from "../Components/Other/StudentChoice";
 import { endPoint, axiosInstance } from "../endPoint/api";
+import Sidebar from "../Components/Other/Sidebar";
 import Loading from "../Components/Other/Loading";
+import { DatePicker } from "et-calendar";
 import Cookies from "js-cookie";
 
 const Home = (props) => {
@@ -19,17 +21,24 @@ const Home = (props) => {
     const [attendances, setAttendances] = useState([]);
     const [loading, setLoading] = useState(true);
     const [section, setSection] = useState("");
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [attendanceTypes, setAttendanceTypes] = useState([]);
+    const [sections, setSections] = useState([]);
+    const [show, setShow] = useState(false);
+    const [attendanceType, setAttendanceType] = useState("ትምህርት");
     const navigate = useNavigate();
     // const [loadingSearch, setLoadingSearch] = useState(true);
 
     useEffect(() => {
         
         const fetchStudents = async () => {
-            // setMessage(null);
             try {
-                console.log(attendanceDate);
+                const optionsResponse = await axiosInstance.get(endPoint.OPTIONS);
+                setAttendanceTypes(optionsResponse.data.types);
+                setSections(optionsResponse.data.sections);
                 const response = await axiosInstance.post(endPoint.FULLATTENDANCEBYDATE,
-                    { "date": attendanceDate, "section": section },
+                    { "date": attendanceDate, "section": section, "page": page, "limit": 10 },
                     {
                         headers: {
                             "Authorization": `Bearer ${Cookies.get("token")}`,
@@ -37,8 +46,9 @@ const Home = (props) => {
                         }
                     }
                 );
-                console.log(response);
-                setAttendances(response.data);
+                
+                setAttendances(response.data.data);
+                setTotalPages(response.data.totalPages);
                 if (response.data == []) {
                     toast.warning("No attendance records found for this date");
                 } 
@@ -58,7 +68,7 @@ const Home = (props) => {
         };
 
         fetchStudents();
-    }, [loading,  attendanceDate, section]);
+    }, [loading, attendanceDate, section, page]);
 
     const handleStatusChange = async (attendanceId, status) => {
         const token = Cookies.get("token");
@@ -132,10 +142,11 @@ const Home = (props) => {
         console.log(token);
         try {
             const response = await axiosInstance.post(
-                endPoint.CREATEDAILYFORALL, 
+                endPoint.CREATEDAILYFORSPECIFIC, 
                 {
                     "date": attendanceDate,
-                    "section": section
+                    "section": section,
+                    "type": attendanceType
                 },
                 {
                     headers: {
@@ -164,133 +175,172 @@ const Home = (props) => {
     // }
 
     return (
-        <div>
-            <Header isAuthenticated={isAuthenticated} user={user ? user.name : null} role={user ? user.role: null}></Header>
-            <div className="container" style={{margin: '10vh auto auto'}}>
-                <h1 className="text-center mt-4 pt-4">Student Attendance Dashboard</h1>
+      <>
+        <Header isAuthenticated={isAuthenticated} user={user ? user.name : null} role={user ? user.role : null} />
+        <div className="container" style={{ margin: '5vh auto auto', maxWidth: '100%' }}>
+          <h1 className="text-center mt-5 pt-5">Student Attendance Dashboard</h1>
 
-                <ToastContainer position="top-right" autoClose={3000} hideProgressBar={true} closeOnClick={true} pauseOnHover={true} draggable={true} theme="colored" />
-                {!isAuthenticated ? <div></div> : ( 
-                <div> 
-                    {user && user.role === "Visitor" ? 
-                    <div>
-                        <StudentChoice/>
+          <ToastContainer position="top-right" autoClose={3000} hideProgressBar={true} closeOnClick pauseOnHover draggable theme="colored" />
+          
+            {!isAuthenticated ? <div></div> : (
+            <div>
+              {user && user.role === "Visitor" ? <StudentChoice /> : 
+              (
+                <Sidebar>
+                <div>
+                  {/* Filters & Buttons */}
+                  <div className="d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between mb-3 mt-3 gap-2">
+                    <div className="flex-grow-1">
+                      <DatePicker
+                        selectedDate={new Date(attendanceDate)}
+                        onDateChange={(date) => { setAttendanceDate(date.toISOString().split('T')[0]); setPage(1); setLoading(true); }}
+                        showCalendars="ethiopian"
+                        viewFirst="Ethiopian"
+                        className="form-control w-100 mb-2"
+                      />
                     </div>
-                     : (
-                        <div>
-                            <div className="d-flex flex-column-sm align-items-center justify-content-between mb-3 mt-3">
-                                    <input type="date" value={attendanceDate} onChange={(e) => { setAttendanceDate(e.target.value); setLoading(true); }} className="form-control w-25 mb-3 mx-2"/>
-                                    <select
-                                        value={section}
-                                        size={5}
-                                        onChange={(e) => {
-                                            setSection(e.target.value);
-                                            setLoading(true);
-                                        }}
-                                        className="form-control w-25 mb-3 mx-2"
-                                        >
-                                        <option value="">All Sections(ሁሉም)</option>
-                                        <option value="1">1ኛ ክፍል</option>
-                                        <option value="2">2ኛ ክፍል</option>
-                                        <option value="3">3ኛ ክፍል</option>
-                                        <option value="4">4ኛ ክፍል</option>
-                                        <option value="5">5ኛ ክፍል</option>
-                                        <option value="6">6ኛ ክፍል</option>
-                                        <option value="7">7ኛ ክፍል</option>
-                                        <option value="8">8ኛ ክፍል</option>
-                                        <option value="9">9ኛ ክፍል</option>
-                                        <option value="10">10ኛ ክፍል</option>
-                                        <option value="11">ዮሐንስ ቀዳማይ</option>
-                                        <option value="12">ዮሐንስ ካልዐይ</option>
-                                        <option value="13">ዮሐንስ ሳልሳይ</option>
-                                        <option value="14">ዮሐንስ ማዕከላዊ</option>
-                                    </select>
-                                    
-                                    {isAuthenticated && user && user.role !== "Visitor" && (
-                                    <div className="ms-auto">
-                                        <button className="btn btn-success mb-3 mx-2 float-end" onClick={(e) => { e.preventDefault(); createAttendance(); setLoading(true);}}>Create Attendance</button>
-                                        <button className="btn btn-warning mb-3 mx-2 float-end" onClick={(e) => { e.preventDefault(); }}>Update Attendance</button>
-                                        <button className="btn btn-primary mb-3 mx-2 float-end" onClick={(e) => { e.preventDefault(); lockAttendance(); setLoading(true);}}>Lock Attendance</button>
-                                        {isAuthenticated && user && user.role === "Admin" && (
-                                            <div>
-                                                <button className="btn btn-info mb-3 mx-2 float-end" onClick={(e) => { e.preventDefault(); navigate('/add-student')}}>Add Students</button>
-                                                <button className="btn btn-info mb-3 mx-2 float-end" onClick={(e) => { e.preventDefault(); navigate('/view-students')}}>View Students</button>
-                                            </div>
-                                        )}
-                                    </div>)}
-                            </div> 
-                            <div className="position-relative">
 
-                                {loading && (
-                                    <div className="loading-overlay">
-                                    <div className="spinner-border text-light"></div>
-                                    </div>
+                    <div className="flex-grow-1">
+                      <select
+                        value={section}
+                        size={1} // make it a dropdown on mobile
+                        onChange={(e) => { setSection(e.target.value); setPage(1); setLoading(true); }}
+                        className="form-control w-100 mb-2"
+                      >
+                        <option value="">All Sections (ሁሉም)</option>
+                        {sections.map((sec, index) => (
+                          <option key={index} value={sec}>{sec}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="d-flex flex-wrap gap-2">
+                      {isAuthenticated && user.role !== "Visitor" && (
+                        <>
+                          <button className="btn btn-success mb-2" onClick={() => { setShow(true); }}>Create Attendance</button>
+                          <button className="btn btn-warning mb-2">Update Attendance</button>
+                          { user && user.role === "Admin" && (
+                            <button className="btn btn-primary mb-2" onClick={() => { lockAttendance(); setLoading(true); }}>Lock Attendance</button>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Attendance Table */}
+                  <div className="position-relative">
+                    {loading && (
+                      <div className="loading-overlay">
+                        <div className="spinner-border text-light"></div>
+                      </div>
+                    )}
+
+                    {attendances.length === 0 ? (
+                      <p className="d-flex flex-column mt-5 pt-5 justify-content-center align-items-center">No attendance records found.</p>
+                    ) : (
+                      <div className="table-responsive">
+                        <table className="table table-striped table-hover">
+                          <thead>
+                            <tr>
+                              <th>#</th>
+                              <th>Name</th>
+                              <th>Section</th>
+                              <th>Day</th>
+                              <th>Type</th>
+                              <th>Status</th>
+                              {isAuthenticated && <th>Change</th>}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {attendances.map((attendance, index) => (
+                              <tr key={attendance._id || attendance.id}>
+                                <td>{index + 1}</td>
+                                <td>{attendance.student.name || "Unknown"}</td>
+                                <td>{attendance.student.section || "Unknown"}</td>
+                                <td>{new Date(attendance.day).toLocaleDateString() || "Unknown"}</td>
+                                <td>{attendance.type}</td>
+                                <td>{attendance.status || "Not Set"}</td>
+                                {isAuthenticated && !attendance.locked && (
+                                  <td className="d-flex flex-wrap gap-1">
+                                    <button className="btn btn-success btn-sm" onClick={() => { setLoading(true); handleStatusChange(attendance._id, "Present"); }}>✓</button>
+                                    <button className="btn btn-danger btn-sm" onClick={() => { setLoading(true); handleStatusChange(attendance._id, "Absent"); }}>A</button>
+                                    <button className="btn btn-warning btn-sm" onClick={() => { setLoading(true); handleStatusChange(attendance._id, "Late-30mins"); }}>L</button>
+                                    <button className="btn btn-primary btn-sm" onClick={() => { setLoading(true); handleStatusChange(attendance._id, "Permission"); }}>P</button>
+                                  </td>
                                 )}
+                                {attendance.locked && <td>Locked</td>}
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                        <div className="d-flex justify-content-center mt-3 gap-2">
+                          <button
+                            className="btn btn-outline-primary"
+                            disabled={page === 1}
+                            onClick={() => {setPage(page - 1); setLoading(true);}}
+                          >
+                            Previous
+                          </button>
 
-                                {attendances.length === 0 ? (
-                                    <p>No attendance records found.</p>
-                                ) : (
-                                    <div>
-                                    <table className="table table-striped">
-                                        <thead>
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>Name</th>
-                                            <th>Section</th>
-                                            <th>Day</th>
-                                            <th>Status</th>
-                                            {isAuthenticated && (
-                                            <th>Change</th>)}
-                                        </tr>
-                                        </thead>
+                          <span className="align-self-center">
+                            Page {page} of {totalPages}
+                          </span>
 
-                                        <tbody>
-                                        {attendances.map((attendance, index) => (
-                                            <tr key={attendance._id || attendance.id}>
-                                            <td>{index + 1}</td>
-                                            <td>{attendance.student.name || "Unknown Name"}</td>
-                                            <td>{attendance.student.section || "Unknown Section"}</td>
-                                            <td>{attendance.day || "Unknown Day"}</td>
-                                            <td>{attendance.status ? attendance.status : "Not Set"}</td>
-                                            {isAuthenticated && ( attendance.locked ? <td>Locked</td> :
-                                            <td>
-                                                <button
-                                                className="btn btn-success p-1 mx-1"
-                                                onClick={() => {setLoading(true); handleStatusChange(attendance._id, "Present");}}>
-                                                ✓
-                                                </button>
+                          <button
+                            className="btn btn-outline-primary"
+                            disabled={page === totalPages}
+                            onClick={() => {setPage(page + 1); setLoading(true);}}
+                          >
+                            Next
+                          </button>
 
-                                                <button className="btn btn-danger p-1 mx-1" onClick={() => {setLoading(true); handleStatusChange(attendance._id, "Absent");}}>                         A
-                                                </button>
+                        </div>
+                      </div>
+                    )}
 
-                                                <button
-                                                className="btn btn-warning p-1 mx-1"
-                                                onClick={() => {setLoading(true); handleStatusChange(attendance._id, "Late-30mins");}}
-                                                >
-                                                L
-                                                </button>
-
-                                                <button
-                                                className="btn btn-primary p-1 mx-1"
-                                                onClick={() => {setLoading(true); handleStatusChange(attendance._id, "Permission");}}
-                                                >
-                                                P
-                                                </button>
-                                            </td>)}
-                                            </tr>
-                                        ))}
-                                        </tbody>
-
-                                    </table>
-                                    </div>
-                                )}
-
+                    {/* Create Attendance Modal */}
+                    {show && (
+                      <>
+                        <div className="modal-backdrop fade show"></div>
+                        <div className="modal fade show d-block" tabIndex="-1">
+                          <div className="modal-dialog modal-dialog-centered modal-sm">
+                            <div className="modal-content">
+                              <div className="modal-header">
+                                <h5 className="modal-title">Choose Type</h5>
+                                <button className="btn-close" onClick={() => setShow(false)}></button>
+                              </div>
+                              <div className="modal-body">
+                                <select
+                                  value={attendanceType}
+                                  onChange={(e) => setAttendanceType(e.target.value)}
+                                  className="form-control"
+                                >
+                                  {attendanceTypes.map((type, index) => (
+                                    <option key={index} value={type}>{type}</option>
+                                  ))}
+                                </select>
+                              </div>
+                              <div className="modal-footer">
+                                <button className="btn btn-danger" onClick={() => setShow(false)}>Cancel</button>
+                                <button className="btn btn-secondary" onClick={() => { setShow(false); createAttendance(); setLoading(true); }}>Continue</button>
+                              </div>
                             </div>
-                    </div>)}
-                </div>)}
-                
+                          </div>
+                        </div>
+                      </>
+                    )}
+
+                  </div>
+                </div>
+                </Sidebar>
+              )}
             </div>
+          )}
+          
+          
         </div>
+      </>
+        
     );
 };
 

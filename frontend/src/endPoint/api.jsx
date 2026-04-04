@@ -11,7 +11,9 @@ const endPoint = {
     GETSTUDENTBYUSER: `${BaseUrl}/student/get-by-user`,
     NEWSTUDENT: `${BaseUrl}/student/create`,
     POSTATTENDANCE: `${BaseUrl}/attendance/post-bulk`,
+    OPTIONS: `${BaseUrl}/attendance/options`,
     CREATEDAILYFORALL: `${BaseUrl}/attendance/daily-all`,
+    CREATEDAILYFORSPECIFIC: `${BaseUrl}/attendance/daily-specific`,
     FULLATTENDANCE: `${BaseUrl}/attendance/get-full`,
     FULLATTENDANCEBYDATE: `${BaseUrl}/attendance/get-full-by-date`,
     DAILYATTENDANCE: `${BaseUrl}/attendance/get-daily`,
@@ -19,6 +21,12 @@ const endPoint = {
     YEARLYATTENDANCEALL: `${BaseUrl}/attendance/create-yearly-all`,
     UPDATEATTENDANCE: `${BaseUrl}/attendance/update-status`,
     LOCKATTENDANCE: `${BaseUrl}/attendance/lock`,
+    NEWCOURSE: `${BaseUrl}/course/create`,
+    ALLCOURSES: `${BaseUrl}/course/all`,
+    GETCOURSE: `${BaseUrl}/course/get`,
+    GETCOURSEBYSECTION: `${BaseUrl}/course/get-by-section`,
+    GETCOURSEBYSTUDENT: `${BaseUrl}/course/get-by-student`,
+    GETSTUDENTATTENDANCEBYCOURSE: `${BaseUrl}/course/get-student-attendance`,
 }
 
 const axiosInstance = axios.create({

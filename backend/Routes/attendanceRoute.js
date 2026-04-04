@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const { 
+    getOptions,
     createYearlyAttendance, 
     updateAttendanceStatus, 
     getFullStudentAttendance,
@@ -8,6 +9,7 @@ const {
     clearAllRecords,
     createYearlyAttendanceAll,
     postBulkAttendance,
+    dailyAttendanceSpecific,
     dailyAttendanceAll,
     lockAttendance
  } = require("../Controllers/attendanceController");
@@ -22,6 +24,8 @@ router.post("/create-yearly-all", protect, createYearlyAttendanceAll);
 router.delete("/clear-records", protect, clearAllRecords);
 router.post("/post-bulk", protect, postBulkAttendance);
 router.post("/daily-all", protect, dailyAttendanceAll);
+router.post("/daily-specific", protect, dailyAttendanceSpecific);
 router.post("/lock", protect, lockAttendance);
+router.get("/options", getOptions);
 
 module.exports = router;

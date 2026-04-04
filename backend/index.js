@@ -10,6 +10,7 @@ const bot = require('./utilities/telegram_bot');
 const authRouter = require('./Routes/authRoute');
 const studentRouter = require('./Routes/studentRoute');
 const attendanceRouter = require('./Routes/attendanceRoute');
+const courseRouter = require('./Routes/courseRoute');
 
 dotenv.config();
 
@@ -36,12 +37,14 @@ connectDB();
 
 // Middleware
 app.use(cors());
+app.options(/.*/, cors());
 app.use(express.json());
 
 // Routes
 app.use('/api/auth', authRouter);
 app.use('/api/student', studentRouter);
 app.use('/api/attendance', attendanceRouter);
+app.use('/api/course', courseRouter);
 
 // bot.launch();
 

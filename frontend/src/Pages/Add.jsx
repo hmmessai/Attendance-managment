@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AuthContext } from "../Components/Auth/AuthContext";
@@ -8,11 +8,25 @@ import Cookies from "js-cookie";
 
 const Add = (props) => {
     const [name, setName] = useState("");
-    const [error, setError] = useState(null);
     const [section, setSection] = useState("");
+    const [sections, setSections] = useState([]);
     const [loading, setLoading] = useState(false);
     const { state } = useContext(AuthContext);
     const { isAuthenticated, user } = state;
+
+    useEffect(() => {
+        const fetchOptions = async () => {
+            try {
+                const optionsResponse = await axiosInstance.get(endPoint.OPTIONS);
+                setSections(optionsResponse.data.sections);
+            } catch (err) {
+                console.log("Error fetching options:", err);
+                toast.error("Failed to load options");
+            }
+        };
+
+        fetchOptions();
+    }, []);
 
     const submitHandler = async (e) => {
         try {
@@ -41,8 +55,6 @@ const Add = (props) => {
             }
         } finally {
             setLoading(false);
-            setName("");
-            setSection("");
         }
         
     };
@@ -73,20 +85,9 @@ const Add = (props) => {
                             }}
                             className="form-control mb-3 mx-2"
                             >
-                            <option value="1">1ኛ ክፍል</option>
-                            <option value="2">2ኛ ክፍል</option>
-                            <option value="3">3ኛ ክፍል</option>
-                            <option value="4">4ኛ ክፍል</option>
-                            <option value="5">5ኛ ክፍል</option>
-                            <option value="6">6ኛ ክፍል</option>
-                            <option value="7">7ኛ ክፍል</option>
-                            <option value="8">8ኛ ክፍል</option>
-                            <option value="9">9ኛ ክፍል</option>
-                            <option value="10">10ኛ ክፍል</option>
-                            <option value="11">ዮሐንስ ቀዳማይ</option>
-                            <option value="12">ዮሐንስ ካልዐይ</option>
-                            <option value="13">ዮሐንስ ሳልሳይ</option>
-                            <option value="14">ዮሐንስ ማዕከላዊ</option>
+                            {sections.map((sec, index) => (
+                                <option key={index} value={sec}>{sec}</option>
+                            ))}
                         </select>
 
                     

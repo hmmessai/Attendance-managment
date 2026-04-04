@@ -1,7 +1,6 @@
-const connectDB = require("../Config/db");
 const mongoose = require("mongoose");
 
-const studentSchema = new mongoose.Schema({
+const courseSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
@@ -11,16 +10,32 @@ const studentSchema = new mongoose.Schema({
         enum: ['1ኛ ክፍል' , '2ኛ ክፍል', '3ኛ ክፍል', '4ኛ ክፍል', '5ኛ ክፍል', '6ኛ ክፍል', '7ኛ ክፍል', '8ኛ ክፍል', '9ኛ ክፍል', '10ኛ ክፍል', 'ዮሐንስ ቀዳማይ', 'ዮሐንስ ካልዐይ', 'ዮሐንስ ሳልሳይ', 'ዮሐንስ ማዕክላዊ'],
         required: true,
     },
-    course: {
-        type: [mongoose.Schema.Types.ObjectId],
+    start_date: {
+        type: String,
+        required: true,
+    },
+    end_date: {
+        type: String,
         required: false,
-        ref: "Course"
+    },
+    teacher: {
+        type: String,
+        required: false,
+    },
+    status: {
+        type: Boolean,
+        default: true,
+    },
+    created_by: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
     }
 },
 {
     timestamps: true,
 });
 
-const Student = mongoose.model("Student", studentSchema);
+const Course = mongoose.model("Course", courseSchema);
 
-module.exports = Student;
+module.exports = Course;

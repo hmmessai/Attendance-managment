@@ -7,6 +7,14 @@ const telegram_service = require("../utilities/telegram_service");
 dotenv.config();
 
 
+async function getOptions(req, res) {
+    res.status(200).json({
+        statuses: ['Absent', 'Late-1hr', 'Late-2hrs', 'Present', 'Late-30mins', 'Permission'],
+        types: ['ትምህርት', 'መዝሙር', 'ትምህርትና መዝሙር', 'ስልጠና', 'አንድነት ጉባኤ', 'አገልግሎት'],
+        sections: ['1ኛ ክፍል' , '2ኛ ክፍል', '3ኛ ክፍል', '4ኛ ክፍል', '5ኛ ክፍል', '6ኛ ክፍል', '7ኛ ክፍል', '8ኛ ክፍል', '9ኛ ክፍል', '10ኛ ክፍል', 'ዮሐንስ ቀዳማይ', 'ዮሐንስ ካልዐይ', 'ዮሐንስ ሳልሳይ', 'ዮሐንስ ማዕክላዊ'],
+    });
+}
+
 // Get attendance of specific student by ID
 async function getFullStudentAttendance(req, res) {
     try {
@@ -27,43 +35,66 @@ async function getFullStudentAttendance(req, res) {
 
 async function getFullStudentsAttendanceonSpecificDate(req, res) {
     try {
-        const { date, section } = req.body;
+        const { date, section, page, limit } = req.body;
         
-        let studentAttendance = await Attendance
-            .find({day: date})
+        const skip = (page - 1) * limit;
+
+        const records = await Attendance.find({day: date})
             .populate({
                     path: "student",
                     match: section !== "" ? { section: section } : {},
                     select: "name _id section"
                 });
 
+        const total = records.filter(r => r.student !== null).length;
+        console.log(total);
+
+        let studentAttendance = await Attendance.find({day: date})
+            .populate({
+                    path: "student",
+                    match: section !== "" ? { section: section } : {},
+                    select: "name _id section"
+                })
+            .skip(skip)
+            .limit(limit);
+
+        // console.log(Math.ceil(total / limit));
         studentAttendance = studentAttendance.filter(a => a.student !== null);
 
         if (!studentAttendance.length) {
             return res.status(404).json({ message: "No attendance records found" });
         }
+        res.status(200).json({
+            "data": studentAttendance,
+            currentPage: page,
+            totalPages: Math.ceil(total / limit),
+            totalRecords: total,
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching attendance", error: error.message });
+    }
+}
 
-        // console.log(students);
-        // console.log(studentAttendance);
-        // for (student in students) {
-        //     console.log("here 3");
-        //     for (attendance in studentAtt)
-        //     if (student.id == studentAttendance.student.id) {
-        //         continue;
-                
-        //     } else {
-        //         attendance.push({
-        //             student: {
-        //                 name: student.name,
-        //                 _id: student._id,
-        //                 section: student.section
-        //             },
-        //             day: date,
-        //             status: null
-        //         });
-        //     }
-        // }
-        res.status(200).json(studentAttendance);
+async function getStudentAttendanceSpecificRange(req, res) {
+    try {
+        const { studentId, startDate, endDate } = req.body;
+        
+        if (!endDate) {
+            endDate_edited = new Date();
+        } else {
+            endDate_edited = new Date(endDate);
+        }
+
+        const attendance = await Attendance.find({ 
+            student: studentId, 
+            day: { $gte: new Date(startDate), $lte: endDate_edited } 
+        }).sort({ day: -1 });
+        
+        if (!attendance.length) {
+            return res.status(404).json({ message: "No attendance records found" });
+        }
+        
+        res.status(200).json(attendance);
     } catch (error) {
         res.status(500).json({ message: "Error fetching attendance", error: error.message });
     }
@@ -175,6 +206,51 @@ async function createYearlyAttendanceAll(req, res) {
             }
         }
         res.status(201).json({ message: "Yearly attendance created successfully", records: totalRecords });
+    } catch (error) {
+        if (error.code === 11000) {
+            // Try to extract the conflicting key (student/day) and delete the existing record
+            const key = error.keyValue
+                || (error.writeErrors && error.writeErrors[0] && error.writeErrors[0].err && error.writeErrors[0].err.keyValue)
+                || null;
+            if (key && (key.student || key.day)) {
+                try {
+                    const filter = {};
+                    if (key.student) filter.student = key.student;
+                    if (key.day) filter.day = key.day;
+                    const deleted = await Attendance.findOneAndDelete(filter);
+                    return res.status(400).json({ message: "Duplicate attendance found — existing record deleted", deleted });
+                } catch (delErr) {
+                    return res.status(500).json({ message: "Duplicate attendance found but failed to delete existing record", error: delErr.message });
+                }
+            }
+            return res.status(400).json({ message: "Attendance already recorded today" });
+        }
+        res.status(500).json({ message: "Error creating attendance", error: error.message });
+    }
+}
+
+async function dailyAttendanceSpecific(req, res) {
+    try {
+        const { date, section, type } = req.body;
+
+        let students;
+        if (section === "") {
+            students = await Student.find();
+        } else {
+            students = await Student.find({ section: section });
+        }
+        let totalRecords = 0;
+        
+        const attendanceRecords = students.map(student => ({
+            student: student._id,
+            day: date,
+            status: null,
+            type: type
+        }));
+        const result = await Attendance.insertMany(attendanceRecords);
+        totalRecords += result.length;
+
+        res.status(201).json({ message: "Daily attendance created successfully", records: totalRecords });
     } catch (error) {
         if (error.code === 11000) {
             // Try to extract the conflicting key (student/day) and delete the existing record
@@ -346,14 +422,17 @@ const clearAllRecords = async (req, res) => {
 
 
 module.exports = {
+    getOptions,
     getFullStudentAttendance,
     getFullStudentsAttendanceonSpecificDate,
+    getStudentAttendanceSpecificRange,
     getDailyStudentAttendance,
     createYearlyAttendance,
     updateAttendanceStatus,
     createYearlyAttendanceAll,
     clearAllRecords,
     postBulkAttendance,
+    dailyAttendanceSpecific,
     dailyAttendanceAll,
     lockAttendance
 };

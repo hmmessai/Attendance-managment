@@ -4,14 +4,14 @@ import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { endPoint, axiosInstance } from "../endPoint/api";
+import { endPoint, axiosInstance } from "../../endPoint/api";
 import Cookies from "js-cookie";
-import { AuthContext } from "../Components/Auth/AuthContext";
-import Header from "../Components/Other/Header";
-import Sidebar from "../Components/Other/Sidebar";
+import { AuthContext } from "../../Components/Auth/AuthContext";
+import Header from "../../Components/Other/Header";
+import Sidebar from "../../Components/Other/Sidebar";
 
 export default function StudentChoice( props ) {
-    const [students, setStudents] = useState([]);
+    const [courses, setCourses] = useState([]);
     const [loading, setLoading] = useState(true);
     const [student, setStudent] = useState(null);
     const [section, setSection] = useState("");
@@ -29,7 +29,7 @@ export default function StudentChoice( props ) {
 
                 const optionsresponse = await axiosInstance.get(endPoint.OPTIONS);
                 setSections(optionsresponse.data.sections);
-                const response = await axiosInstance.get(endPoint.STUDENTS,
+                const response = await axiosInstance.get(endPoint.ALLCOURSES,
                     {
                         params: {section: section},
                         headers: {
@@ -39,15 +39,15 @@ export default function StudentChoice( props ) {
                     }
                 );
                 
-                setStudents(response.data);
+                setCourses(response.data);
                 if (response.data == []) {
-                    toast.warning("No Students are available.");
+                    toast.warning("No Courses are available.");
                 } 
             } catch (err) {
-                console.log("Error fetching students:", err);
+                console.log("Error fetching courses:", err);
                 if (err.response && err.response.status === 404) {
-                    setStudents([]);
-                    toast.warning("No Students found");
+                    setCourses([]);
+                    toast.warning("No Courses found");
                 } else if (err.response && err.response.status === 401) {
                     toast.error("Unauthorized. Please log in again.");
                 } else {
@@ -99,7 +99,7 @@ export default function StudentChoice( props ) {
   />
 
   <div className="container" style={{ margin: '5vh auto auto', maxWidth: '100%' }}>
-    <h1 className="text-center mt-5 p-3">View Students Modal</h1>
+    <h1 className="text-center mt-5 p-3">View Courses Modal</h1>
     <Sidebar>
 
     <div className="position-relative">
@@ -133,19 +133,30 @@ export default function StudentChoice( props ) {
                 <th>No.</th>
                 <th>Name</th>
                 <th>Section</th>
-                <th>View</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Teacher</th>
+                <th>Created By</th>
+                <th>Status</th>
               </tr>
             </thead>
             <tbody>
-              {students.map((student, index) => (
-                <tr key={`${student.id}-${index}`}>
+              {courses.map((course, index) => (
+                <tr key={`${course.id}-${index}`}>
                   <td>{index + 1}</td>
-                  <td>{student.name}</td>
-                  <td>{student.section}</td>
+                  <td>{course.name}</td>
+                  <td>{course.section}</td>
+                  <td>{course.start_date}</td>
+                  <td>{course.end_date}</td>
+                  <td>{course.teacher}</td>
+                  <td>{course.created_by.name}</td>
+                  <td>
+                    {course.status ? "Active" : "Inactive"}
+                  </td>
                   <td>
                     <button
                       className="btn btn-dark btn-sm w-100 w-sm-auto"
-                      onClick={() => navigate("/view-student?id=" + student.id)}
+                      onClick={() => navigate("/course?id=" + course._id)}
                     >
                       View
                     </button>
