@@ -39,6 +39,17 @@ export default function CoursePage () {
               },
               });
 
+              const studentsResponse = await axiosInstance.get(endPoint.GETCOURSESTUDENTS, {
+                params: { id: queryId },
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+              });
+              console.log(studentsResponse.data);
+
+              setStudents(studentsResponse.data);
+
               setCourse(response.data);
           } catch (err) {
               console.error("Error fetching course:", err);
@@ -54,6 +65,49 @@ export default function CoursePage () {
 
         getProfile();
     }, [queryId]);
+
+    const addStudentToCourse = async (courseId, studentId) => {
+      const token = Cookies.get("token");
+      try {
+        await axiosInstance.post(endPoint.ADDSTUDENTTOCOURSE, {
+          courseId,
+          studentId,
+        }, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+        toast.success("Student added to course successfully");
+      } catch (err) {
+        console.error("Error adding student to course:", err);
+        if (err.response && err.response.status === 404) {
+          toast.warning("Course or student not found");
+        } else if (err.response && err.response.status === 400) {
+          toast.warning("Student is already enrolled in this course");
+        } else {
+          toast.error("Internal Server Error");
+        }
+      }
+    };
+
+    const getStudents = async (section) => {
+      const token = Cookies.get("token");
+      try {
+        const response = await axiosInstance.get(endPoint.STUDENTS, {
+          params: { section },
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+        return response.data;
+      } catch (err) {
+        console.error("Error fetching students:", err);
+        toast.error("Internal Server Error");
+        return [];
+      }
+    };
 
     return (
         <>
@@ -90,35 +144,16 @@ export default function CoursePage () {
                         <thead>
                           <tr>
                             <th>No.</th>
-                            <th>Day</th>
-                            <th>Status</th>
+                            <th>Name</th>
                           </tr>
                         </thead>
                         <tbody>
-                          {/* {student.attendance.map((att, index) => (
+                          {students.map((att, index) => (
                             <tr key={index}>
                               <td>{index + 1}</td>
-                              <td>{att.day}</td>
-                              <td
-                                style={{
-                                  background:
-                                    att.status === 'Absent'
-                                      ? 'red'
-                                      : att.status === 'Late'
-                                      ? 'yellow'
-                                      : att.status === 'Permission'
-                                      ? 'blue'
-                                      : 'transparent',
-                                  color:
-                                    att.status === 'Absent' || att.status === 'Permission'
-                                      ? 'white'
-                                      : 'black',
-                                }}
-                              >
-                                {att.status}
-                              </td>
+                              <td>{att.name}</td>
                             </tr>
-                          ))} */}
+                          ))}
                         </tbody>
                       </table>
                     </div>

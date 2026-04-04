@@ -24,6 +24,7 @@ const endPoint = {
     NEWCOURSE: `${BaseUrl}/course/create`,
     ALLCOURSES: `${BaseUrl}/course/all`,
     GETCOURSE: `${BaseUrl}/course/get`,
+    GETCOURSESTUDENTS: `${BaseUrl}/course/get-students`,
     GETCOURSEBYSECTION: `${BaseUrl}/course/get-by-section`,
     GETCOURSEBYSTUDENT: `${BaseUrl}/course/get-by-student`,
     GETSTUDENTATTENDANCEBYCOURSE: `${BaseUrl}/course/get-student-attendance`,

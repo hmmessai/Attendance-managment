@@ -1,6 +1,7 @@
 const Attendance = require("../Models/Attendance");
 const Course = require("../Models/Course");
 const Student = require("../Models/Student");
+const mongoose = require("mongoose");
 
 const createCourse = async (req, res) => {
   console.log(req.body);
@@ -67,6 +68,41 @@ const getCourse = async (req, res) => {
   }
 };
 
+const getCourseStudents = async (req, res) => {
+  const { id } = req.query;
+  console.log("in sut",id);
+  try {
+    const students = await Student.find({ course: id }).populate('name');
+    res.status(200).json(students);
+  } catch (error) {
+    console.error("Error fetching course students:", error);
+    res.status(500).json({ message: error.message });
+  }
+}
+
+const addStudentToCourse = async (courseId, studentId) => {
+  try {
+    const course = await Course.findById(courseId);
+    const student = await Student.findById(studentId);
+
+    if (!course || !student) {
+      res.status(404).json({ message: "Course or student not found" });
+    }
+
+    if (!student.course.includes(courseId)) {
+      student.course.push(courseId);
+      await student.save();
+      res.status(200).json({ message: "Student added to course successfully" });
+    } else {
+      res.status(400).json({ message: "Student is already enrolled in this course" });
+    }
+  } catch (error) {
+    console.error("Error adding student to course:", error);
+    throw new Error("Internal server error");
+  }
+};
+
+
 const getCoursesBySection = async (req, res) => {
   const { sectionId } = req.query;
   try {
@@ -121,6 +157,8 @@ module.exports = {
     createCourse,
     getCourses,
     getCourse,
+    addStudentToCourse,
+    getCourseStudents,
     getCoursesBySection,
     getCoursesByStudent,
     getStudentAttendanceByCourse,
