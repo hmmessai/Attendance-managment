@@ -24,9 +24,11 @@ const Home = (props) => {
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [attendanceTypes, setAttendanceTypes] = useState([]);
+    const [attendanceTypeFilter, setAttendanceTypeFilter] = useState("");
     const [sections, setSections] = useState([]);
     const [show, setShow] = useState(false);
     const [attendanceType, setAttendanceType] = useState("ትምህርት");
+    const [createSection, setCreateSection] = useState("");
     const navigate = useNavigate();
     // const [loadingSearch, setLoadingSearch] = useState(true);
 
@@ -38,7 +40,7 @@ const Home = (props) => {
                 setAttendanceTypes(optionsResponse.data.types);
                 setSections(optionsResponse.data.sections);
                 const response = await axiosInstance.post(endPoint.FULLATTENDANCEBYDATE,
-                    { "date": attendanceDate, "section": section, "page": page, "limit": 10 },
+                    { "date": attendanceDate, "section": section, "page": page, "limit": 10, "type": attendanceTypeFilter },
                     {
                         headers: {
                             "Authorization": `Bearer ${Cookies.get("token")}`,
@@ -68,7 +70,7 @@ const Home = (props) => {
         };
 
         fetchStudents();
-    }, [loading, attendanceDate, section, page]);
+    }, [loading, attendanceDate, section, page, attendanceTypeFilter]);
 
     const handleStatusChange = async (attendanceId, status) => {
         const token = Cookies.get("token");
@@ -145,7 +147,7 @@ const Home = (props) => {
                 endPoint.CREATEDAILYFORSPECIFIC, 
                 {
                     "date": attendanceDate,
-                    "section": section,
+                    "section": createSection,
                     "type": attendanceType
                 },
                 {
@@ -214,15 +216,28 @@ const Home = (props) => {
                       </select>
                     </div>
 
+                    <div className="flex-grow-1">
+                      <select
+                        value={attendanceTypeFilter}
+                        size={1} // make it a dropdown on mobile
+                        onChange={(e) => { setAttendanceTypeFilter(e.target.value); setPage(1); setLoading(true); }}
+                        className="form-control w-100 mb-2"
+                      >
+                        <option value="">All Types (ሁሉም)</option>
+                        {attendanceTypes.map((type, index) => (
+                          <option key={index} value={type}>{type}</option>
+                        ))}
+                      </select>
+                    </div>
+
                     <div className="d-flex flex-wrap gap-2">
                       {isAuthenticated && user.role !== "Visitor" && (
-                        <>
+                        <div className="d-flex flex-row flex-wrap gap-2 justify-content-end">
                           <button className="btn btn-success mb-2" onClick={() => { setShow(true); }}>Create Attendance</button>
-                          <button className="btn btn-warning mb-2">Update Attendance</button>
                           { user && user.role === "Admin" && (
                             <button className="btn btn-primary mb-2" onClick={() => { lockAttendance(); setLoading(true); }}>Lock Attendance</button>
                           )}
-                        </>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -278,6 +293,10 @@ const Home = (props) => {
                             className="btn btn-outline-primary"
                             disabled={page === 1}
                             onClick={() => {setPage(page - 1); setLoading(true);}}
+                            style={{
+                              backgroundColor: page === 1 ? "gray" : "",
+                              color: page === 1 ? "white" : ""
+                            }}
                           >
                             Previous
                           </button>
@@ -290,6 +309,10 @@ const Home = (props) => {
                             className="btn btn-outline-primary"
                             disabled={page === totalPages}
                             onClick={() => {setPage(page + 1); setLoading(true);}}
+                            style={{
+                              backgroundColor: page === totalPages ? "gray" : "",
+                              color: page === totalPages ? "white" : ""
+                            }}
                           >
                             Next
                           </button>
@@ -317,6 +340,15 @@ const Home = (props) => {
                                 >
                                   {attendanceTypes.map((type, index) => (
                                     <option key={index} value={type}>{type}</option>
+                                  ))}
+                                </select>
+                                <select
+                                  value={createSection}
+                                  onChange={(e) => setCreateSection(e.target.value)}
+                                  className="form-control"
+                                >
+                                  {sections.map((section, index) => (
+                                    <option key={index} value={section}>{section}</option>
                                   ))}
                                 </select>
                               </div>

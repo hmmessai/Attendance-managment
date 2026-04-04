@@ -89,6 +89,9 @@ const Profile = () => (
 );
 
 const CourseAttendance = (props) => {
+
+  const [attendance, setAttendance] = useState([]);
+
   useEffect(() => {
     
     const fetchCourseAttendance = async () => {
@@ -98,6 +101,8 @@ const CourseAttendance = (props) => {
           {
           params: {courseId: props.courseId},
         });
+
+        setAttendance(response.data);
         
       } catch (err) {
         if (err.response && err.response.status === 404) {
@@ -125,7 +130,36 @@ const CourseAttendance = (props) => {
       </div>
       
 
-      <p>Course Attendance</p>
+      <div className="table-responsive">
+        <table className="table table-striped">
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Name</th>
+              <th>Day</th>
+              <th>Type</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {attendance?.map((record, index) => (
+      
+                <tr>
+                  <td>{index + 1}</td>
+                  <td>{record.name}</td>
+                  <td>{new Date(record.day).toLocaleDateString()}</td>
+                  <td>{record.type}</td>
+                  <td
+                    className="text-center"
+                    style={{ 
+                      background: record.status === "Absent" ? "red" : ""}}
+                  >{record.status}</td>
+                </tr>
+          
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

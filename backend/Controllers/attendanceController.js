@@ -35,37 +35,67 @@ async function getFullStudentAttendance(req, res) {
 
 async function getFullStudentsAttendanceonSpecificDate(req, res) {
     try {
-        const { date, section, page, limit } = req.body;
+        const { date, section, page, type, limit } = req.body;
+
+        const studentFilter = section !== "" ? { section } : {};
+        const matchingStudents = await Student.find(studentFilter).select("_id");
+
+        // 2️⃣ collect their IDs
+        const studentIds = matchingStudents.map(s => s._id);
+
+        const attendanceFilter = {
+        day: date,
+        ...(type !== "" && { type }),
+        student: { $in: studentIds }
+        };
+
+        const total = await Attendance.countDocuments(attendanceFilter);
+
+        // 4️⃣ get paginated attendance
+        const studentAttendance = await Attendance.find(attendanceFilter)
+        .populate({ path: "student", select: "name _id section" })
+        .skip((page - 1) * limit)
+        .limit(limit);
+
+        // const records = await Attendance.find({day: date, ...(type !== "" && { type: type })})
+        //     .populate({
+        //             path: "student",
+        //             match: section !== "" ? { section: section } : {},
+        //             select: "name _id section"
+        //         });
+
+        // const total = records.filter(r => r.student !== null).length;
         
-        const skip = (page - 1) * limit;
+        // let skip = 0;
+        // let lmt = limit;
+        // if (total > limit) {
+        //     skip = (page - 1) * limit;
+        // } else {
+        //     skip = 0;
+        //     lmt = total;
+        // }
 
-        const records = await Attendance.find({day: date})
-            .populate({
-                    path: "student",
-                    match: section !== "" ? { section: section } : {},
-                    select: "name _id section"
-                });
+        // console.log(skip, lmt, page, total);
 
-        const total = records.filter(r => r.student !== null).length;
-        console.log(total);
+        // let studentAttendance = await Attendance.find({day: date, ...(type !== "" && { type: type })})
+        //     .populate({
+        //             path: "student",
+        //             match: section !== "" ? { section: section } : {},
+        //             select: "name _id section"
+        //         })
+        //     .skip(skip)
+        //     .limit(lmt);
 
-        let studentAttendance = await Attendance.find({day: date})
-            .populate({
-                    path: "student",
-                    match: section !== "" ? { section: section } : {},
-                    select: "name _id section"
-                })
-            .skip(skip)
-            .limit(limit);
+            
+        // // console.log(Math.ceil(total / limit));
+        // studentAttendance = studentAttendance.filter(a => a.student !== null);
 
-        // console.log(Math.ceil(total / limit));
-        studentAttendance = studentAttendance.filter(a => a.student !== null);
-
+        // console.log(studentAttendance);
         if (!studentAttendance.length) {
             return res.status(404).json({ message: "No attendance records found" });
         }
         res.status(200).json({
-            "data": studentAttendance,
+            data: studentAttendance,
             currentPage: page,
             totalPages: Math.ceil(total / limit),
             totalRecords: total,
@@ -207,6 +237,7 @@ async function createYearlyAttendanceAll(req, res) {
         }
         res.status(201).json({ message: "Yearly attendance created successfully", records: totalRecords });
     } catch (error) {
+        console.error("Error creating yearly attendance:", error);
         if (error.code === 11000) {
             // Try to extract the conflicting key (student/day) and delete the existing record
             const key = error.keyValue
@@ -223,6 +254,7 @@ async function createYearlyAttendanceAll(req, res) {
                     return res.status(500).json({ message: "Duplicate attendance found but failed to delete existing record", error: delErr.message });
                 }
             }
+
             return res.status(400).json({ message: "Attendance already recorded today" });
         }
         res.status(500).json({ message: "Error creating attendance", error: error.message });
@@ -263,11 +295,13 @@ async function dailyAttendanceSpecific(req, res) {
                     if (key.student) filter.student = key.student;
                     if (key.day) filter.day = key.day;
                     const deleted = await Attendance.findOneAndDelete(filter);
+                    console.log(deleted);
                     return res.status(400).json({ message: "Duplicate attendance found — existing record deleted", deleted });
                 } catch (delErr) {
                     return res.status(500).json({ message: "Duplicate attendance found but failed to delete existing record", error: delErr.message });
                 }
             }
+            console.error("Error creating yearly attendance:", error);
             return res.status(400).json({ message: "Attendance already recorded today" });
         }
         res.status(500).json({ message: "Error creating attendance", error: error.message });

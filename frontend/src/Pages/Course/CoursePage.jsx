@@ -78,7 +78,9 @@ export default function CoursePage () {
                       <h6>Teacher: {course.teacher}</h6>
                       <h6>Start Date: {new Date(course.start_date).toLocaleDateString()}</h6>
                       <h6>End Date: {new Date(course.end_date).toLocaleDateString()}</h6>
-                      <h6>Status: {course.status}</h6>
+                      <h6 style={{ background: course.status ? "green" : "red", color: "white" }}>
+                        Status: {course.status ? "Active" : "Inactive"}
+                      </h6>
                       <h6>Created by: {course.created_by.name}</h6>
                       <h6>Created at: {new Date(course.created_at).toLocaleString()}</h6>
                     </div>

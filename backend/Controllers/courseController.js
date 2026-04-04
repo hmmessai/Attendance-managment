@@ -41,6 +41,7 @@ const getCourses = async (req, res) => {
     } else {
       courses = await Course.find({ section: section }).populate('created_by', 'name');
     }
+    
     if (!courses || courses.length === 0) {
       return res.status(404).json({ message: "No courses found" });
     }
@@ -58,6 +59,7 @@ const getCourse = async (req, res) => {
     if (!course) {
       return res.status(404).json({ message: "Course not found" });
     }
+    console.log(course);
     res.status(200).json(course);
   } catch (error) {
     console.error("Error fetching course:", error);

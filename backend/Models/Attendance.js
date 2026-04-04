@@ -29,7 +29,7 @@ const attendanceSchema = new mongoose.Schema({
     timestamps: true,
 });
 
-attendanceSchema.index({ student: 1, day: 1 }, { unique: true });
+attendanceSchema.index({ student: 1, day: 1, type: 1 }, { unique: true });
 
 const Attendance = mongoose.model("Attendance", attendanceSchema);
 
