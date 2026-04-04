@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { createCourse, getCourses, getCourse, getCourseStudents, getCoursesBySection, getCoursesByStudent, getStudentAttendanceByCourse } = require("../Controllers/courseController");
+const { createCourse, getCourses, getCourse, addStudentToCourse, getCourseStudents, getCoursesBySection, getCoursesByStudent, getStudentAttendanceByCourse } = require("../Controllers/courseController");
 const { protect } = require("../Controllers/authController");
 
 router.post("/create", createCourse);
