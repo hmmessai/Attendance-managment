@@ -35,7 +35,7 @@ bot.hears("Subscribe", (ctx) => {
 })
 
 bot.action("STUDENT", async (ctx) => {
-  ctx.reply("በሰንበት ት/ቤቱ ውስጥ ትምህርት የሚክታተሉበትን ጉባኤ ይምረጡ",
+  ctx.editMessageText("በሰንበት ት/ቤቱ ውስጥ ትምህርት የሚክታተሉበትን ጉባኤ ይምረጡ",
     Markup.keyboard(
       [1, 2, 3, 4],
       [5, 6, 7, 8],
@@ -46,7 +46,7 @@ bot.action("STUDENT", async (ctx) => {
 
 // Inline button actions
 bot.action("PARENT", async (ctx) => {
-  ctx.reply("Choose the grade of your child:",
+  ctx.editMessageText("Choose the grade of your child:",
     Markup.inlineKeyboard([
     [
       Markup.button.callback("Grade 1", "GRADE_1"),
@@ -93,14 +93,14 @@ bot.action(/GRADE_\d+/, async (ctx) => {
 
     if (!sectionValue) {
       await ctx.answerCbQuery();
-      return ctx.reply("Invalid grade selected.");
+      return ctx.editMessageText("Invalid grade selected.");
     }
 
     const students = await Student.find({ section: sectionValue });
 
     if (!students.length) {
       await ctx.answerCbQuery();
-      return ctx.reply(`No students found in ${sectionValue}`);
+      return ctx.editMessageText(`No students found in ${sectionValue}`);
     }
 
     const keyboard = Markup.inlineKeyboard(
@@ -110,13 +110,13 @@ bot.action(/GRADE_\d+/, async (ctx) => {
     );
 
     await ctx.answerCbQuery();
-    await ctx.reply(
+    await ctx.editMessageText(
       "Choose the name of your child from the list:",
       keyboard
     );
   } catch (err) {
     console.error(err);
-    await ctx.reply("Something went wrong while fetching students.");
+    await ctx.editMessageText("Something went wrong while fetching students.");
   }
 });
 
@@ -130,7 +130,7 @@ bot.action(/STUDENT_\w+/, async (ctx) => {
 
     if (!student) {
       await ctx.answerCbQuery();
-      return ctx.reply("Student not found.");
+      return ctx.editMessageText("Student not found.");
     }
     const userExists = await User.findOne({ email: `${ctx.from.id}@hass.et` });
     if (userExists) {
@@ -152,7 +152,7 @@ bot.action(/STUDENT_\w+/, async (ctx) => {
     }
 
     await ctx.answerCbQuery();
-    await ctx.reply(`You have successfully subscribed to updates regarding ${student.name} 🚀
+    await ctx.editMessageText(`You have successfully subscribed to updates regarding ${student.name} 🚀
       የመርሃ ግብር ለውጦች ሲኖሩ እንዲሁም ከልጅዎ ጋር በተያያዘ ጉዳይ ማስተላለፍ የምንፈልገው መልእክት ሲኖር በዚህ የምናሳውቅ ይሆናል።
       ከታች ባሉት ኢሜይልና ፓስወርድ በመጠቀም በድረ ገጻችን ላይ ገብተው የልጅዎን ሙሉ መረጃ ማግኘት ይችላሉ።
       email: ${ctx.from.id}@hass.et
