@@ -69,30 +69,51 @@ bot.action("PARENT", async (ctx) => {
     ]))
 });
 
+const gradeMap = {
+  "1": "1ኛ ክፍል",
+  "2": "2ኛ ክፍል",
+  "3": "3ኛ ክፍል",
+  "4": "4ኛ ክፍል",
+  "5": "5ኛ ክፍል",
+  "6": "6ኛ ክፍል",
+  "7": "7ኛ ክፍል",
+  "8": "8ኛ ክፍል",
+  "9": "9ኛ ክፍል",
+  "10": "10ኛ ክፍል",
+  "11": "ዮሐንስ ቀዳማይ",
+  "12": "ዮሐንስ ካልዐይ"
+};
+
 bot.action(/GRADE_\d+/, async (ctx) => {
   try {
-    const grade = ctx.callbackQuery.data; // e.g., "GRADE_5"
-    const [, gradeNumber] = grade.split("_"); // gets "5"
+    const grade = ctx.callbackQuery.data;
+    const [, gradeNumber] = grade.split("_");
 
-    // Fetch students from DB
-    const students = await Student.find({ section: gradeNumber });
+    const sectionValue = gradeMap[gradeNumber];
 
-    if (students.length === 0) {
+    if (!sectionValue) {
       await ctx.answerCbQuery();
-      return ctx.reply(`No students found in Grade ${gradeNumber}`);
+      return ctx.reply("Invalid grade selected.");
     }
 
-    // Create inline keyboard
-    const buttons = students.map(s =>
-      Markup.button.callback(s.name, `STUDENT_${s._id}`)
-    );
+    const students = await Student.find({ section: sectionValue });
+
+    if (!students.length) {
+      await ctx.answerCbQuery();
+      return ctx.reply(`No students found in ${sectionValue}`);
+    }
 
     const keyboard = Markup.inlineKeyboard(
-      buttons.map(b => [b]) // each button on a separate row
+      students.map(s => [
+        Markup.button.callback(s.name, `STUDENT_${s._id}`)
+      ])
     );
 
     await ctx.answerCbQuery();
-    await ctx.reply(`Choose the name of your child from the list:`, keyboard);
+    await ctx.reply(
+      "Choose the name of your child from the list:",
+      keyboard
+    );
   } catch (err) {
     console.error(err);
     await ctx.reply("Something went wrong while fetching students.");
