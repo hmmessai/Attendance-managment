@@ -124,12 +124,11 @@ bot.action(/GRADE_\d+/, async (ctx) => {
     }
 
     const keyboard = Markup.inlineKeyboard([
-        [Markup.button.callback("BACK", "PARENT")],
-        students.map(s => [
-          Markup.button.callback(s.name, `STUDENT_${s._id}`)
-        ])
-      ]
-    );
+      [Markup.button.callback("⬅ BACK", "PARENT")],
+      ...students.map(s => [
+        Markup.button.callback(s.name, `STUDENT_${s._id}`)
+      ])
+    ]);
 
     await ctx.answerCbQuery();
     await ctx.editMessageText(
