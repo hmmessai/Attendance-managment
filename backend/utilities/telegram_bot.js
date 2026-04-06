@@ -67,7 +67,7 @@ bot.action("STUDENT", async (ctx) => {
 bot.action("PARENT", async (ctx) => {
   ctx.editMessageText("Choose the grade of your child:",
     Markup.inlineKeyboard([
-    [Markup.button.callback("BACK", "Subscribe")],
+    [Markup.button.callback("⬅ BACK", "BACK_SUBSCRIBE")],
     [
       Markup.button.callback("Grade 1", "GRADE_1"),
       Markup.button.callback("Grade 2", "GRADE_2"),
