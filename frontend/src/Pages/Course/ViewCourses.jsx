@@ -127,12 +127,21 @@ export default function StudentChoice( props ) {
         <select
             value={status}
             size={1} // make it a dropdown on mobile
-            onChange={(e) => { setStatus(e.target.value); setLoading(true); }}
+            onChange={(e) => { 
+              const value = e.target.value;
+              setStatus(
+                value === "all"
+                  ? null
+                  : value === "true"
+                  ? true
+                  : false
+              ); 
+              setLoading(true); }}
             className="form-control w-25 mb-2 align-self-center justify-self-center"
           >
-            <option value={null}>All Statuses (ሁሉም)</option>
-            <option value={true}>Active</option>
-            <option value={false}>Inactive</option>
+            <option value="all">All Statuses (ሁሉም)</option>
+            <option value="true">Active</option>
+            <option value="false">Inactive</option>
           </select>
       {/* Responsive Layout */}
       <div className="d-flex flex-column flex-sm-row align-items-start justify-content-between gap-3">
