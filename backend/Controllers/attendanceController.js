@@ -44,10 +44,10 @@ async function getFullStudentsAttendanceonSpecificDate(req, res) {
         const studentIds = matchingStudents.map(s => s._id);
 
         const attendanceFilter = {
-        day: date,
-        ...(type !== "" && { type }),
-        student: { $in: studentIds }
-        };
+            day: date,
+            ...(type !== "" && { type }),
+            student: { $in: studentIds }
+            };
 
         const total = await Attendance.countDocuments(attendanceFilter);
 

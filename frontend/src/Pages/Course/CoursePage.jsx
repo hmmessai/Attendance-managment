@@ -356,8 +356,8 @@ export default function CoursePage () {
                 ) : course && (
                   <>
                   <h1 className="mt-5 text-center align-self-center">Course Page</h1>
-                  <div className="d-flex flex-row align-items-start justify-content-start gap-5 mt-5 flex-grow-1">
-                    <div className="d-flex flex-row gap-5 w-100">
+                  <div className="d-flex flex-md-row flex-column align-items-start justify-content-start gap-5 mt-5 flex-grow-1">
+                    <div className="d-flex flex-md-row flex-column gap-5 w-100">
                       <div className="card p-5 mb-3">
                         <h3 className="text-center"><b>{course.name}</b></h3>
                         <hr></hr>

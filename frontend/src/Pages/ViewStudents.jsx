@@ -16,6 +16,8 @@ export default function StudentChoice( props ) {
     const [student, setStudent] = useState(null);
     const [section, setSection] = useState("");
     const [sections, setSections] = useState([]);
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
     const navigate = useNavigate();
 
     const {state} = useContext(AuthContext);
@@ -31,7 +33,7 @@ export default function StudentChoice( props ) {
                 setSections(optionsresponse.data.sections);
                 const response = await axiosInstance.get(endPoint.STUDENTS,
                     {
-                        params: {section: section},
+                        params: {section: section, page: page},
                         headers: {
                             "Authorization": `Bearer ${Cookies.get("token")}`,
                             "Content-Type": "application/json"
@@ -39,7 +41,8 @@ export default function StudentChoice( props ) {
                     }
                 );
                 
-                setStudents(response.data);
+                setStudents(response.data.students);
+                setTotalPages(response.data.totalPages);
                 if (response.data == []) {
                     toast.warning("No Students are available.");
                 } 
@@ -59,7 +62,7 @@ export default function StudentChoice( props ) {
         };
 
         fetchStudents();
-    }, [section]);
+    }, [section, page]);
 
     const getProfile = async (id) => {
         const token = Cookies.get("token");
@@ -114,7 +117,7 @@ export default function StudentChoice( props ) {
         <select
             value={section}
             size={1} // make it a dropdown on mobile
-            onChange={(e) => { setSection(e.target.value); setLoading(true); }}
+            onChange={(e) => { setSection(e.target.value); setPage(1); setLoading(true); }}
             className="form-control w-25 mb-2 align-self-center justify-self-center"
           >
             <option value="">All Sections (ሁሉም)</option>
@@ -154,6 +157,36 @@ export default function StudentChoice( props ) {
               ))}
             </tbody>
           </table>
+          <div className="d-flex justify-content-center mt-3 gap-2">
+            <button
+              className="btn btn-outline-primary"
+              disabled={page === 1}
+              onClick={() => {setPage(page - 1); setLoading(true);}}
+              style={{
+                backgroundColor: page === 1 ? "gray" : "",
+                color: page === 1 ? "white" : ""
+              }}
+            >
+              Previous
+            </button>
+
+            <span className="align-self-center">
+              Page {page} of {totalPages}
+            </span>
+
+            <button
+              className="btn btn-outline-primary"
+              disabled={page === totalPages}
+              onClick={() => {setPage(page + 1); setLoading(true);}}
+              style={{
+                backgroundColor: page === totalPages ? "gray" : "",
+                color: page === totalPages ? "white" : ""
+              }}
+            >
+              Next
+            </button>
+
+          </div>
         </div>
 
         {/* Student Profile */}

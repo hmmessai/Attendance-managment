@@ -10,6 +10,7 @@ import { AuthContext } from "../Components/Auth/AuthContext";
 import Header from "../Components/Other/Header";
 
 const Attendance = (props) => (
+
   <div>
     <div className="table-responsive">
         <table className="table table-striped">
@@ -38,6 +39,7 @@ const Attendance = (props) => (
             ))}
           </tbody>
         </table>
+        
       </div>
   </div>
 );
@@ -249,14 +251,14 @@ export default function StudentPage () {
                 ) : student && (
                   <>
                     <h1 className="p-5 text-center">Student Profile</h1>
-                    <div className="d-flex flex-row gap-5 w-100">
+                    <div className="d-flex flex-md-row flex-column gap-5 w-100">
                       <div className="card align-self-start p-4">
                         <h4>{student.name}</h4>
                         <hr/>
                         <h5>{student.section}</h5>
                       </div>
                       {/* Horizontal Menu */}
-                      <div className="w-75">
+                      <div className="w-100">
                       {activeTab !== "course-attendance" && (
                       <div className="d-flex gap-4 border-bottom ">
                         {tabs.map((tab) => (

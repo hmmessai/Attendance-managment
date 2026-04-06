@@ -1,4 +1,5 @@
 import { useState, useContext, useEffect } from "react";
+import {useNavigate} from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AuthContext } from "../Components/Auth/AuthContext";
@@ -13,6 +14,7 @@ const Add = (props) => {
     const [loading, setLoading] = useState(false);
     const { state } = useContext(AuthContext);
     const { isAuthenticated, user } = state;
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchOptions = async () => {
@@ -43,6 +45,9 @@ const Add = (props) => {
             );
             if (response.status === 201) {
                 toast.success(`Student ${name} added successfully`);
+                setTimeout(() => {
+                    navigate("/view-students");
+                }, 2000);
             } else {
                 toast.error("Failed to add student");
             }

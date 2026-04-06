@@ -7,16 +7,19 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 const allStudents = async (req, res) => {
+    const page = parseInt(req.query.page) || 1;
   try {
     let students;
     console.log(req.query);
     if (req.query.section) {
       const section = req.query.section;
-      students = await Student.find({ section }).sort({ section: 1 });
+      students = await Student.find({ section }).sort({ section: 1 }).skip((page - 1) * 10).limit(10);
     } else {
-      students = await Student.find().sort({ section: 1 });
+      students = await Student.find().sort({ section: 1 }).skip((page - 1) * 10).limit(10);
     }
-    
+
+    students = students.filter(a => a.student !== null);
+    const totalPages = Math.ceil(await Student.countDocuments(req.query.section ? { section: req.query.section } : {}) / 10);
     const studentsWithProfile = await Promise.all(
       students.map(async (student) => {
         const attendance = await Attendance.find({ student: student._id });
@@ -36,7 +39,10 @@ const allStudents = async (req, res) => {
     );
 
     // Return the complete array
-    res.status(200).json(studentsWithProfile);
+    res.status(200).json({
+        students: studentsWithProfile,
+        totalPages: totalPages
+    });
   } catch (error) {
     console.error("Error fetching students:", error);
     res.status(500).json({ message: error.message });
