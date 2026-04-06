@@ -53,7 +53,7 @@ bot.action("BACK_SUBSCRIBE", async (ctx) => {
 });
 
 bot.action("STUDENT", async (ctx) => {
-  ctx.editMessageText("በሰንበት ት/ቤቱ ውስጥ ትምህርት የሚክታተሉበትን ጉባኤ ይምረጡ",
+  ctx.editMessageText("በሰንበት ት/ቤቱ ውስጥ ትምህርት የሚከታተሉበትን ጉባኤ ይምረጡ",
     Markup.keyboard(
       [Markup.button.callback("⬅ BACK", "BACK_SUBSCRIBE")],
       [1, 2, 3, 4],
