@@ -25,19 +25,37 @@ bot.start((ctx) => {
   );
 });
 
-bot.hears("Subscribe", (ctx) => {
-  const chat_id = ctx.chat.id;
-  ctx.reply("Please choose the method of your subscription:",
-  Markup.inlineKeyboard([
-    Markup.button.callback("Parent/Guardian", "PARENT"),
-    Markup.button.callback("Student", "STUDENT")
-  ]));
-})
+
+const showSubscribeMenu = async (ctx, edit = false) => {
+  const message = "Please choose the method of your subscription:";
+
+  const keyboard = Markup.inlineKeyboard([
+    [
+      Markup.button.callback("Parent/Guardian", "PARENT"),
+      Markup.button.callback("Student", "STUDENT")
+    ]
+  ]);
+
+  if (edit) {
+    await ctx.editMessageText(message, keyboard);
+  } else {
+    await ctx.reply(message, keyboard);
+  }
+};
+
+
+bot.hears("Subscribe", async (ctx) => {
+  await showSubscribeMenu(ctx);
+});
+
+bot.action("BACK_SUBSCRIBE", async (ctx) => {
+  await showSubscribeMenu(ctx, true);
+});
 
 bot.action("STUDENT", async (ctx) => {
   ctx.editMessageText("በሰንበት ት/ቤቱ ውስጥ ትምህርት የሚክታተሉበትን ጉባኤ ይምረጡ",
     Markup.keyboard(
-      [Markup.button.callback("BACK", "Subscribe")],
+      [Markup.button.callback("⬅ BACK", "BACK_SUBSCRIBE")],
       [1, 2, 3, 4],
       [5, 6, 7, 8],
       [ማዕከላዊ, ሳልሳይ, ካልዐይ, ቀዳማይ]
@@ -106,8 +124,8 @@ bot.action(/GRADE_\d+/, async (ctx) => {
     }
 
     const keyboard = Markup.inlineKeyboard(
+      [Markup.button.callback("BACK", "PARENT")],
       students.map(s => [
-        Markup.button.callback("BACK", "PARENT"),
         Markup.button.callback(s.name, `STUDENT_${s._id}`)
       ])
     );
