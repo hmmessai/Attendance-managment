@@ -53,7 +53,7 @@ async function getFullStudentsAttendanceonSpecificDate(req, res) {
 
         // 4️⃣ get paginated attendance
         const studentAttendance = await Attendance.find(attendanceFilter)
-        .populate({ path: "student", select: "name _id section" })
+        .populate({ path: "student", select: "name _id section", options: { sort: { name: 1 } } })
         .skip((page - 1) * limit)
         .limit(limit);
 

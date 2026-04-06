@@ -15,6 +15,7 @@ export default function StudentChoice( props ) {
     const [loading, setLoading] = useState(true);
     const [student, setStudent] = useState(null);
     const [section, setSection] = useState("");
+    const [status, setStatus] = useState(null);
     const [sections, setSections] = useState([]);
     const navigate = useNavigate();
 
@@ -31,7 +32,7 @@ export default function StudentChoice( props ) {
                 setSections(optionsresponse.data.sections);
                 const response = await axiosInstance.get(endPoint.ALLCOURSES,
                     {
-                        params: {section: section},
+                        params: {section: section, status: status},
                         headers: {
                             "Authorization": `Bearer ${Cookies.get("token")}`,
                             "Content-Type": "application/json"
@@ -59,7 +60,7 @@ export default function StudentChoice( props ) {
         };
 
         fetchStudents();
-    }, [section]);
+    }, [section, status]);
 
     const getProfile = async (id) => {
         const token = Cookies.get("token");
@@ -122,6 +123,17 @@ export default function StudentChoice( props ) {
               <option key={index} value={sec}>{sec}</option>
             ))}
           </select>  
+        <h4 className="mb-3">Filter by Status</h4>
+        <select
+            value={status}
+            size={1} // make it a dropdown on mobile
+            onChange={(e) => { setStatus(e.target.value); setLoading(true); }}
+            className="form-control w-25 mb-2 align-self-center justify-self-center"
+          >
+            <option value={null}>All Statuses (ሁሉም)</option>
+            <option value={true}>Active</option>
+            <option value={false}>Inactive</option>
+          </select>
       {/* Responsive Layout */}
       <div className="d-flex flex-column flex-sm-row align-items-start justify-content-between gap-3">
         

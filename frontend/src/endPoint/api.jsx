@@ -27,7 +27,9 @@ const endPoint = {
     GETCOURSESTUDENTS: `${BaseUrl}/course/get-students`,
     GETCOURSEBYSECTION: `${BaseUrl}/course/get-by-section`,
     GETCOURSEBYSTUDENT: `${BaseUrl}/course/get-by-student`,
+    ADDSTUDENTTOCOURSE: `${BaseUrl}/course/add-student`,
     GETSTUDENTATTENDANCEBYCOURSE: `${BaseUrl}/course/get-student-attendance`,
+    UPDATECOURSE: `${BaseUrl}/course/update`,
 }
 
 const axiosInstance = axios.create({

@@ -35,12 +35,17 @@ const createCourse = async (req, res) => {
 
 const getCourses = async (req, res) => {
   const section = req.query.section;
+  const status = req.query.status;
   try {
     let courses;
-    if (!section) {
+    if (!section && !status) {
       courses = await Course.find().populate('created_by', 'name');
-    } else {
+    } else if (!section) {
+      courses = await Course.find({ status: status }).populate('created_by', 'name');
+    } else if (!status) {
       courses = await Course.find({ section: section }).populate('created_by', 'name');
+    } else {
+      courses = await Course.find({ section: section, status: status }).populate('created_by', 'name');
     }
     
     if (!courses || courses.length === 0) {
@@ -80,7 +85,8 @@ const getCourseStudents = async (req, res) => {
   }
 }
 
-const addStudentToCourse = async (courseId, studentId) => {
+const addStudentToCourse = async (req, res) => {
+  const { courseId, studentId, action } = req.body;
   try {
     const course = await Course.findById(courseId);
     const student = await Student.findById(studentId);
@@ -88,17 +94,21 @@ const addStudentToCourse = async (courseId, studentId) => {
     if (!course || !student) {
       res.status(404).json({ message: "Course or student not found" });
     }
-
-    if (!student.course.includes(courseId)) {
+    
+    if (action === "add" && !student.course.includes(courseId)) {
       student.course.push(courseId);
       await student.save();
       res.status(200).json({ message: "Student added to course successfully" });
+    } else if (action === "remove" && student.course.includes(courseId)) {
+      student.course.pull(courseId);
+      await student.save();
+      res.status(200).json({ message: "Student removed from course successfully" });
     } else {
-      res.status(400).json({ message: "Student is already enrolled in this course" });
+      throw new Error("Invalid action");
     }
   } catch (error) {
     console.error("Error adding student to course:", error);
-    throw new Error("Internal server error");
+    res.status(500).json({ message: error.message });
   }
 };
 
@@ -128,6 +138,7 @@ const getCoursesByStudent = async (req, res) => {
 const getStudentAttendanceByCourse = async (req, res) => {
   const studentId = req.params.id;
   const courseId = req.query.courseId;
+  console.log(studentId, courseId);
   try {
     const student = await Student.findById(studentId);
     const course = await Course.findById(courseId);
@@ -153,6 +164,40 @@ const getStudentAttendanceByCourse = async (req, res) => {
   }
 };
 
+const updateCourse = async (req, res) => {
+  try {
+    const { id, ...updateData } = req.body;
+
+    const course = await Course.findByIdAndUpdate(
+      id,
+      updateData,
+      {
+        new: true,
+        runValidators: true
+      }
+    );
+
+    if (!course) {
+      return res.status(404).json({
+        message: "Course not found"
+      });
+    }
+
+    return res.status(200).json({
+      message: "Course updated successfully",
+      data: course
+    });
+
+  } catch (error) {
+    console.error("Error updating course:", error);
+
+    return res.status(500).json({
+      message: "Internal server error",
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
     createCourse,
     getCourses,
@@ -162,4 +207,5 @@ module.exports = {
     getCoursesBySection,
     getCoursesByStudent,
     getStudentAttendanceByCourse,
+    updateCourse,
 };
