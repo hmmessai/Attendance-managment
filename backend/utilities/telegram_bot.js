@@ -123,11 +123,12 @@ bot.action(/GRADE_\d+/, async (ctx) => {
       return ctx.editMessageText(`No students found in ${sectionValue}`);
     }
 
-    const keyboard = Markup.inlineKeyboard(
-      [Markup.button.callback("BACK", "PARENT")],
-      students.map(s => [
-        Markup.button.callback(s.name, `STUDENT_${s._id}`)
-      ])
+    const keyboard = Markup.inlineKeyboard([
+        [Markup.button.callback("BACK", "PARENT")],
+        students.map(s => [
+          Markup.button.callback(s.name, `STUDENT_${s._id}`)
+        ])
+      ]
     );
 
     await ctx.answerCbQuery();
