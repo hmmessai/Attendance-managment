@@ -37,6 +37,7 @@ bot.hears("Subscribe", (ctx) => {
 bot.action("STUDENT", async (ctx) => {
   ctx.editMessageText("በሰንበት ት/ቤቱ ውስጥ ትምህርት የሚክታተሉበትን ጉባኤ ይምረጡ",
     Markup.keyboard(
+      [Markup.button.callback("BACK", "Subscribe")],
       [1, 2, 3, 4],
       [5, 6, 7, 8],
       [ማዕከላዊ, ሳልሳይ, ካልዐይ, ቀዳማይ]
@@ -48,6 +49,7 @@ bot.action("STUDENT", async (ctx) => {
 bot.action("PARENT", async (ctx) => {
   ctx.editMessageText("Choose the grade of your child:",
     Markup.inlineKeyboard([
+    [Markup.button.callback("BACK", "Subscribe")],
     [
       Markup.button.callback("Grade 1", "GRADE_1"),
       Markup.button.callback("Grade 2", "GRADE_2"),
@@ -105,6 +107,7 @@ bot.action(/GRADE_\d+/, async (ctx) => {
 
     const keyboard = Markup.inlineKeyboard(
       students.map(s => [
+        Markup.button.callback("BACK", "PARENT"),
         Markup.button.callback(s.name, `STUDENT_${s._id}`)
       ])
     );
