@@ -3,6 +3,7 @@ const Student = require("../Models/Student");
 const User = require("../Models/User");
 const dotenv = require("dotenv");
 const telegram_service = require("../utilities/telegram_service");
+const { toEthiopianDate } = require("../utilities/telegram_service");
 
 dotenv.config();
 
@@ -196,12 +197,7 @@ async function lockAttendance(req, res) {
             if (updated.status === "Absent") {
                 const student = await Student.findById(updated.student._id);
                 const user = await User.findOne({ student_id: student._id });
-                const day = new Date(updated.day).toLocaleDateString("am-ET-u-ca-ethiopic", {
-                                                                        weekday: "long",
-                                                                        day: "numeric",
-                                                                        month: "long",
-                                                                        year: "numeric"
-                                                                    });
+                const day = toEthiopianDate(updated.day);
                 if (user && user.telegram_id) {
                     telegram_service.sendMessage(user.telegram_id, `Student ${updated.student.name} didn't attend on ${day}
                                                                             ተማሪ ${updated.student.name} በቀን ${day} አልተገኘም`);
