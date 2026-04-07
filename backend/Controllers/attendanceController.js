@@ -196,9 +196,15 @@ async function lockAttendance(req, res) {
             if (updated.status === "Absent") {
                 const student = await Student.findById(updated.student._id);
                 const user = await User.findOne({ student_id: student._id });
+                const day = new Date(updated.day).toLocaleDateString("am-ET-u-ca-ethiopic", {
+                                                                        weekday: "long",
+                                                                        day: "numeric",
+                                                                        month: "long",
+                                                                        year: "numeric"
+                                                                    });
                 if (user && user.telegram_id) {
-                    telegram_service.sendMessage(user.telegram_id, `Student ${updated.student.name} didn't attend on ${updated.day}
-                                                                            ተማሪ ${updated.student.name} በቀን ${updated.day} አልተገኘም`);
+                    telegram_service.sendMessage(user.telegram_id, `Student ${updated.student.name} didn't attend on ${day}
+                                                                            ተማሪ ${updated.student.name} በቀን ${day} አልተገኘም`);
                 }
             }
         }

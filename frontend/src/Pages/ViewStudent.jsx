@@ -137,7 +137,6 @@ const CourseAttendance = (props) => {
           <thead>
             <tr>
               <th>No</th>
-              <th>Name</th>
               <th>Day</th>
               <th>Type</th>
               <th>Status</th>
@@ -148,8 +147,12 @@ const CourseAttendance = (props) => {
       
                 <tr>
                   <td>{index + 1}</td>
-                  <td>{record.name}</td>
-                  <td>{new Date(record.day).toLocaleDateString()}</td>
+                  <td>{new Date(record.day).toLocaleDateString("am-ET-u-ca-ethiopic", {
+                                                                    weekday: "long",
+                                                                    day: "numeric",
+                                                                    month: "long",
+                                                                    year: "numeric"
+                                                                  })}</td>
                   <td>{record.type}</td>
                   <td
                     className="text-center"

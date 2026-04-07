@@ -272,7 +272,12 @@ const Home = (props) => {
                                 <td>{index + 1}</td>
                                 <td>{attendance.student.name || "Unknown"}</td>
                                 <td>{attendance.student.section || "Unknown"}</td>
-                                <td>{new Date(attendance.day).toLocaleDateString() || "Unknown"}</td>
+                                <td>{new Date(attendance.day).toLocaleDateString("am-ET-u-ca-ethiopic", {
+                                                                                      weekday: "long",
+                                                                                      day: "numeric",
+                                                                                      month: "long",
+                                                                                      year: "numeric"
+                                                                                    }) || "Unknown"}</td>
                                 <td>{attendance.type}</td>
                                 <td>{attendance.status || "Not Set"}</td>
                                 {isAuthenticated && !attendance.locked && (
