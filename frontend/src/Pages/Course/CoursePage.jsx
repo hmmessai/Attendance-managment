@@ -136,7 +136,7 @@ const AddStudents = (props) => {
             "Content-Type": "application/json",
           },
         });
-        setStudents(response.data);
+        setStudents(response.data.students);
       } catch (err) {
         console.error("Error fetching students:", err);
         toast.error("Internal Server Error");
