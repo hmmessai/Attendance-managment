@@ -46,7 +46,7 @@ app.use('/api/student', studentRouter);
 app.use('/api/attendance', attendanceRouter);
 app.use('/api/course', courseRouter);
 
-// bot.launch();
+bot.launch();
 
 // Start the server
 const PORT = process.env.PORT || 5000;
