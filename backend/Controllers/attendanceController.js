@@ -198,6 +198,7 @@ async function lockAttendance(req, res) {
                 const student = await Student.findById(updated.student._id);
                 const user = await User.findOne({ student_id: student._id });
                 const day = toEthiopianDate(updated.day);
+                console.log(day);
                 if (user && user.telegram_id) {
                     telegram_service.sendMessage(user.telegram_id, `Student ${updated.student.name} didn't attend on ${day}
                                                                             ተማሪ ${updated.student.name} በቀን ${day} አልተገኘም`);
@@ -312,7 +313,7 @@ async function dailyAttendanceSpecific(req, res) {
 
 async function dailyAttendanceAll(req, res) {
     try {
-        const { date } = req.body;
+        const { date, type } = req.body;
 
         const students = await Student.find();
         let totalRecords = 0;
@@ -320,6 +321,7 @@ async function dailyAttendanceAll(req, res) {
         const attendanceRecords = students.map(student => ({
             student: student._id,
             day: date,
+            type: type,
             status: null
         }));
         const result = await Attendance.insertMany(attendanceRecords);

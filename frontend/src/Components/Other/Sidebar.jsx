@@ -35,7 +35,7 @@ export default function Sidebar({children}) {
         {/* Menu */}
         <ul className="nav flex-column">
 
-          { user && user.role === "Admin" ? <li className="nav-item mb-2">
+          { user && user.role === "Admin" || user.role === "Editor" ? <li className="nav-item mb-2">
             <button className="nav-link text-white" onClick={() => {toggleMenu("students"); setCollapsed(false);}}>
               👨‍🎓 {!collapsed && "Students"}
             {!collapsed && (
@@ -51,21 +51,24 @@ export default function Sidebar({children}) {
               openMenu === "students" ? "show" : ""
             }`}
           >
-            <ul className="nav flex-column ms-3">
+            
+                <ul className="nav flex-column ms-3">
+                  { user.role === "Admin" ? (
+                    <li className="nav-item">
+                      <a href="/add-student" className="nav-link text-white small">
+                        ➤ Add Student
+                      </a>
+                    </li>
+                  ): null}
 
-              <li className="nav-item">
-                <a href="/add-student" className="nav-link text-white small">
-                  ➤ Add Student
-                </a>
-              </li>
+                  <li className="nav-item">
+                    <a href="/view-students" className="nav-link text-white small">
+                      ➤ View Students
+                    </a>
+                  </li>
 
-              <li className="nav-item">
-                <a href="/view-students" className="nav-link text-white small">
-                  ➤ View Students
-                </a>
-              </li>
-
-            </ul>
+                </ul>
+            
             </div>
           </li> : null
           }
@@ -97,7 +100,7 @@ export default function Sidebar({children}) {
             </div>
           </li>
 
-          { user && user.role === "Admin" ? <li className="nav-item mb-2">
+          { user && user.role === "Admin" || user.role === "Editor" ? <li className="nav-item mb-2">
             <button className="nav-link text-white" onClick={() => {setCollapsed(false); toggleMenu("courses"); }}>
               &#128214; {!collapsed && "Courses"}
             {!collapsed && (
@@ -108,18 +111,22 @@ export default function Sidebar({children}) {
           </button>
 
           {/* Submenu */}
+
           <div
             className={`collapse ${
               openMenu === "courses" ? "show" : ""
             }`}
           >
+            
             <ul className="nav flex-column ms-3">
 
-              <li className="nav-item">
-                <a href="/course/add" className="nav-link text-white small">
-                  ➤ Add Courses
-                </a>
-              </li>
+              { user.role === "Admin" ? (
+                <li className="nav-item">
+                  <a href="/course/add" className="nav-link text-white small">
+                    ➤ Add Courses
+                  </a>
+                </li>
+            ) : null}
 
               <li className="nav-item">
                 <a href="/course/view" className="nav-link text-white small">

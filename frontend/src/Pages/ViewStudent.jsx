@@ -27,7 +27,12 @@ const Attendance = (props) => (
       
             <tr>
               <td>{index + 1}</td>
-              <td>{new Date(record.day).toLocaleDateString()}</td>
+              <td>{new Date(record.day).toLocaleDateString("am-ET-u-ca-ethiopic", {
+                    weekday: "long",
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric"
+                  })}</td>
               <td>{record.type}</td>
               <td
                 style={{ 
@@ -63,8 +68,18 @@ const Course = (props) => (
                 <tr>
                   <td>{index + 1}</td>
                   <td>{record.name}</td>
-                  <td>{new Date(record.start_date).toLocaleDateString()}</td>
-                  <td>{new Date(record.end_date).toLocaleDateString()}</td>
+                  <td>{new Date(record.start_date).toLocaleDateString("am-ET-u-ca-ethiopic", {
+                    weekday: "long",
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric"
+                  })}</td>
+                  <td>{new Date(record.end_date).toLocaleDateString("am-ET-u-ca-ethiopic", {
+                    weekday: "long",
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric"
+                  })}</td>
                   <td
                     className="text-center"
                     style={{ 
@@ -255,10 +270,17 @@ export default function StudentPage () {
                   <>
                     <h1 className="p-5 text-center">Student Profile</h1>
                     <div className="d-flex flex-md-row flex-column gap-5 w-100">
-                      <div className="card align-self-start p-4">
-                        <h4>{student.name}</h4>
-                        <hr/>
-                        <h5>{student.section}</h5>
+                      <div
+                        className="card p-4 align-self-start flex-shrink-0 w-auto"
+                        style={{ display: "inline-block" }}
+                      >
+                        <h4 className="pb-2 text-nowrap mb-2">
+                          <b>{student.name}</b>
+                        </h4>
+
+                        <hr className="my-2" />
+
+                        <h5 className="mb-0">{student.section}</h5>
                       </div>
                       {/* Horizontal Menu */}
                       <div className="w-100">

@@ -27,6 +27,7 @@ const Home = (props) => {
     const [attendanceTypeFilter, setAttendanceTypeFilter] = useState("");
     const [sections, setSections] = useState([]);
     const [show, setShow] = useState(false);
+    const [showAll, setShowAll] = useState(false);
     const [attendanceType, setAttendanceType] = useState("ትምህርት");
     const [createSection, setCreateSection] = useState("");
     const navigate = useNavigate();
@@ -87,7 +88,6 @@ const Home = (props) => {
                         "Content-Type": "application/json"
                     }
                 });
-            console.log(response);
             toast.success("Attendance updated successfully");
         } catch (err) {
             console.log("Error updating attendance:", err);
@@ -105,7 +105,6 @@ const Home = (props) => {
 
     const lockAttendance = async () => {
         const token = Cookies.get("token");
-        console.log(token);
         try {
             const response = await axiosInstance.post(
                 endPoint.LOCKATTENDANCE, 
@@ -118,7 +117,6 @@ const Home = (props) => {
                     }
                 }
             );
-            console.log(response);
             toast.success("Attendance locked successfully for " + attendanceDate);
         } catch (err) {
             console.log("Error locking attendance:", err);
@@ -138,10 +136,39 @@ const Home = (props) => {
         }
     };
 
+    const createAttendanceAll = async () => {
+        const token = Cookies.get("token");
+        try {
+            const response = await axiosInstance.post(
+                endPoint.CREATEDAILYFORALL, 
+                {
+                    "date": attendanceDate,
+                    "type": attendanceType
+                },
+                {
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                }
+            );
+            console.log(response);
+            toast.success("Attendance created successfully for " + attendanceDate);
+        } catch (err) {
+            console.log("Error creating attendance:", err);
+            if (err.status === 400) {
+                toast.warning("Attendance for this date already exists");
+            } else if (err.status === 401) {
+                toast.error("Unauthorized. Please log in again.");
+            } else {
+                toast.error(err.message);
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const createAttendance = async () => {
         const token = Cookies.get("token");
-        console.log(token);
         try {
             const response = await axiosInstance.post(
                 endPoint.CREATEDAILYFORSPECIFIC, 
@@ -156,7 +183,6 @@ const Home = (props) => {
                     }
                 }
             );
-            console.log(response);
             toast.success("Attendance created successfully for " + attendanceDate);
         } catch (err) {
             console.log("Error creating attendance:", err);
@@ -235,8 +261,11 @@ const Home = (props) => {
                         <div className="d-flex flex-row flex-wrap gap-2 justify-content-end">
                           <button className="btn btn-success mb-2" onClick={() => { setShow(true); }}>Create Attendance</button>
                           { user && user.role === "Admin" && (
-                            <button className="btn btn-primary mb-2" onClick={() => { lockAttendance(); setLoading(true); }}>Lock Attendance</button>
-                          )}
+                            <>
+                              <button className="btn btn-primary mb-2" onClick={() => { lockAttendance(); setLoading(true); }}>Lock Attendance</button>
+                              <button className="btn btn-warning mb-2" onClick={() => { setShowAll(true); }}>Create Attendance For All</button>
+                            </>
+                            )}
                         </div>
                       )}
                     </div>
@@ -360,6 +389,38 @@ const Home = (props) => {
                               <div className="modal-footer">
                                 <button className="btn btn-danger" onClick={() => setShow(false)}>Cancel</button>
                                 <button className="btn btn-secondary" onClick={() => { setShow(false); createAttendance(); setLoading(true); }}>Continue</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </>
+                    )}
+
+                    {/* Create Attendance For All Modal */}
+                    {showAll && (
+                      <>
+                        <div className="modal-backdrop fade show"></div>
+                        <div className="modal fade show d-block" tabIndex="-1">
+                          <div className="modal-dialog modal-dialog-centered modal-sm">
+                            <div className="modal-content">
+                              <div className="modal-header">
+                                <h5 className="modal-title">Choose Type</h5>
+                                <button className="btn-close" onClick={() => setShowAll(false)}></button>
+                              </div>
+                              <div className="modal-body">
+                                <select
+                                  value={attendanceType}
+                                  onChange={(e) => setAttendanceType(e.target.value)}
+                                  className="form-control"
+                                >
+                                  {attendanceTypes.map((type, index) => (
+                                    <option key={index} value={type}>{type}</option>
+                                  ))}
+                                </select>
+                              </div>
+                              <div className="modal-footer">
+                                <button className="btn btn-danger" onClick={() => setShowAll(false)}>Cancel</button>
+                                <button className="btn btn-secondary" onClick={() => { setShowAll(false); createAttendanceAll(); setLoading(true); }}>Continue</button>
                               </div>
                             </div>
                           </div>

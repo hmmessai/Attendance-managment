@@ -167,7 +167,7 @@ export default function StudentChoice( props ) {
                   <td>{index + 1}</td>
                   <td>{course.name}</td>
                   <td>{course.section}</td>
-                  <td>{new ate(course.start_date).toLocaleDateString("am-ET-u-ca-ethiopic", {
+                  <td>{new Date(course.start_date).toLocaleDateString("am-ET-u-ca-ethiopic", {
                     weekday: "long",
                     day: "numeric",
                     month: "long",
