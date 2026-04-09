@@ -84,12 +84,36 @@ const currentUser = async (req, res) => {
             "email": user.email,
             "role": user.role,
             "id": user.id,
+            "students": user.student
         });
     } catch (error) {
         console.error("Current user error:", error.message);
         res.status(401).json({ message: error.message });
     }
 };
+
+const changePassword = async (req, res) => {
+    const user = req.user;
+    const {old_password, new_password} = req.body;
+
+    try {
+        if (!user) {
+            return res.status(404).json({message: "User not found"});
+        }
+        const isMatch = await bcrypt.compare(old_password, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ message: "Password is incorrect" });
+        }
+
+        user.password = new_password;
+        await user.save();
+        return res.status(201).json({message: "Password changed successfully"});
+
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: err.message});
+    }
+}
 
 const protect = async (req, res, next) => {
     try {
@@ -105,4 +129,4 @@ const protect = async (req, res, next) => {
     }
 }
 
-module.exports = { register, login, currentUser, protect };
+module.exports = { register, login, currentUser, changePassword, protect };

@@ -28,7 +28,7 @@ export default function Header( props ) {
                         <button className="nav-link active" href="#">Contact</button>
                     </li>
                     <li class="nav-item ms-auto px-3">
-                        <p className="nav-link active"><b>{props.user}</b></p>
+                        <a href="/profile" className="nav-link bg-dark text-white px-3"><b><span className="bi bi-person-circle"></span></b></a>
                     </li>
                 </ul> : 
                 <ul class="navbar-nav ms-auto">

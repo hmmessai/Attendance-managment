@@ -28,6 +28,7 @@ const Home = (props) => {
     const [sections, setSections] = useState([]);
     const [show, setShow] = useState(false);
     const [showAll, setShowAll] = useState(false);
+    const [selected, setSelected] = useState([]);
     const [attendanceType, setAttendanceType] = useState("ትምህርት");
     const [createSection, setCreateSection] = useState("");
     const navigate = useNavigate();
@@ -198,9 +199,49 @@ const Home = (props) => {
         }
     };
 
-    // if (loadingSearch) {
-    //     return <Loading message="Loading page..."></Loading>
-    // }
+    const handleSelect = (id) => {
+      setSelected(prev =>
+        prev.includes(id)
+          ? prev.filter(item => item !== id) // remove
+          : [...prev, id] // add
+      );
+    };
+
+    const handleSelectAll = () => {
+      if (selected.length === attendances.length) {
+        setSelected([]);
+      } else {
+        setSelected(attendances.map(s => s._id));
+      }
+    };
+
+
+    const handleDelete = async () => {
+      const token = Cookies.get("token");
+      try {
+        const response = await axiosInstance.post(
+                endPoint.DELETEATTENDANCERECORDS, 
+                {
+                    "records": selected 
+                },
+                {
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                }
+            );
+
+            if (response.status === 200) {
+              toast.success("Records deleted successfully")
+            }
+
+      } catch (err) {
+        toast.error("Records could not be deleted.Try again.")
+      } finally {
+        setLoading(false);
+        setSelected([]);
+      }
+    }
 
     return (
       <>
@@ -264,6 +305,7 @@ const Home = (props) => {
                             <>
                               <button className="btn btn-primary mb-2" onClick={() => { lockAttendance(); setLoading(true); }}>Lock Attendance</button>
                               <button className="btn btn-warning mb-2" onClick={() => { setShowAll(true); }}>Create Attendance For All</button>
+                              <button className="btn btn-danger mb-2" onClick={() => { setLoading(true); handleDelete(); }}>Delete Selected</button>
                             </>
                             )}
                         </div>
@@ -286,6 +328,13 @@ const Home = (props) => {
                         <table className="table table-striped table-hover">
                           <thead>
                             <tr>
+                              <th>
+                                <input 
+                                  type="checkbox" 
+                                  checked={selected.length === attendances.length}
+                                  onChange={handleSelectAll}
+                                />
+                              </th>
                               <th>#</th>
                               <th>Name</th>
                               <th>Section</th>
@@ -298,6 +347,13 @@ const Home = (props) => {
                           <tbody>
                             {attendances.map((attendance, index) => (
                               <tr key={attendance._id || attendance.id}>
+                                <td>
+                                  <input
+                                    type="checkbox"
+                                    checked={selected.includes(attendance._id)}
+                                    onChange={() => handleSelect(attendance._id)}
+                                  />
+                                </td>
                                 <td>{index + 1}</td>
                                 <td>{attendance.student.name || "Unknown"}</td>
                                 <td>{attendance.student.section || "Unknown"}</td>

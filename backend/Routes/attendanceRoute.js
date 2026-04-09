@@ -6,6 +6,7 @@ const {
     getFullStudentAttendance,
     getFullStudentsAttendanceonSpecificDate,
     getDailyStudentAttendance,
+    deleteRecords,
     clearAllRecords,
     createYearlyAttendanceAll,
     postBulkAttendance,
@@ -21,6 +22,7 @@ router.get("/get-daily", protect, getDailyStudentAttendance);
 router.post("/create-yearly", protect, createYearlyAttendance);
 router.put("/update-status", protect, updateAttendanceStatus);
 router.post("/create-yearly-all", protect, createYearlyAttendanceAll);
+router.post("/delete", protect, deleteRecords);
 router.delete("/clear-records", protect, clearAllRecords);
 router.post("/post-bulk", protect, postBulkAttendance);
 router.post("/daily-all", protect, dailyAttendanceAll);

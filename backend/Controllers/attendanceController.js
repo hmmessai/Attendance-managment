@@ -444,6 +444,20 @@ const postBulkAttendance = async (req, res) => {
 };
 
 
+const deleteRecords = async (req, res) => {
+    const { records } = req.body;
+    try {
+        console.log(records);
+        const deleted = await Attendance.deleteMany({
+            _id: { $in : records}
+        });
+
+        res.status(200).json({ message: `${deleted.deletedCount} records deleted` });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+}
+
 const clearAllRecords = async (req, res) => {
     try {
         const deleted = await Attendance.deleteMany({});
@@ -468,6 +482,7 @@ module.exports = {
     createYearlyAttendance,
     updateAttendanceStatus,
     createYearlyAttendanceAll,
+    deleteRecords,
     clearAllRecords,
     postBulkAttendance,
     dailyAttendanceSpecific,

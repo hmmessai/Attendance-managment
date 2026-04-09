@@ -13,6 +13,7 @@ import AddCourse from './Pages/Course/AddCourse';
 import ViewCourses from './Pages/Course/ViewCourses';
 import CoursePage from './Pages/Course/CoursePage';
 import Error from './Pages/Error';
+import Profile from './Pages/Profile';
 
 function App() {
   const {state} = useContext(AuthContext);
@@ -25,6 +26,7 @@ function App() {
         <Route path="/home" element={<Home />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/profile" element={isAuthenticated && user && <Profile/>} />
          
            <Route
             path="/add-student"
@@ -35,11 +37,14 @@ function App() {
             }
           />
 
-            <Route path="/view-students" element={
-              isAuthenticated && user && (user.role === "Admin" || user.role === "Editor")
-                ? <ViewStudents />
-                : <Error />
-            } />
+            <Route
+              path="/view-students"
+              element={
+                isAuthenticated && ["Admin", "Editor"].includes(user?.role)
+                  ? <ViewStudents />
+                  : <Error />
+              }
+            />
             <Route path="/view-student" element={
               isAuthenticated && user && user.role === "Admin"
                 ? <StudentPage />
@@ -51,7 +56,7 @@ function App() {
                 : <Error />
             } />
             <Route path="/course/view" element={
-              isAuthenticated && user && (user.role === "Admin" || user.role === "Editor")
+              isAuthenticated && ["Admin", "Editor"].includes(user?.role)
                 ? <ViewCourses />
                 : <Error />
             } />

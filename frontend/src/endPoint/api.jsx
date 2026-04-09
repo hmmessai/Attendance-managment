@@ -21,6 +21,7 @@ const endPoint = {
     YEARLYATTENDANCEALL: `${BaseUrl}/attendance/create-yearly-all`,
     UPDATEATTENDANCE: `${BaseUrl}/attendance/update-status`,
     LOCKATTENDANCE: `${BaseUrl}/attendance/lock`,
+    DELETEATTENDANCERECORDS: `${BaseUrl}/attendance/delete`,
     NEWCOURSE: `${BaseUrl}/course/create`,
     ALLCOURSES: `${BaseUrl}/course/all`,
     GETCOURSE: `${BaseUrl}/course/get`,
