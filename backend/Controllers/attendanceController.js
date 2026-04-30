@@ -200,8 +200,8 @@ async function lockAttendance(req, res) {
                 const day = toEthiopianDate(updated.day);
                 console.log(day);
                 if (user && user.telegram_id) {
-                    telegram_service.sendMessage(user.telegram_id, `Student ${updated.student.name} didn't attend on ${day}
-                                                                            ተማሪ ${updated.student.name} በቀን ${day} አልተገኘም`);
+                    telegram_service.sendMessage(user.telegram_id, `Student ${updated.student.name} didn't attend on ${Date(day)}
+                                                                            ተማሪ ${updated.student.name} በቀን ${Date(day)} አልተገኘም`);
                 }
             }
         }
